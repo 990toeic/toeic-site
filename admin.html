@@ -188,6 +188,9 @@
     <label>第一組密碼（好友）：<input type="text" id="pwFriend" placeholder="friend456"></label>
     <label>第二組密碼（學員）：<input type="text" id="pwStudent" placeholder="student123"></label>
     <button onclick="saveSettings()">儲存密碼設定</button>
+    <div style="margin-top:10px; color:#b91c1c;">
+      ⚠️ 請將下載的 settings.json 檔案放入網站根目錄並重新部署，以同步前台密碼設定。
+    </div>
   </div>
 
   <div class="section">
@@ -509,6 +512,12 @@
         passwordFriend: document.getElementById('pwFriend').value.trim()
       };
       localStorage.setItem('toeicSettings', JSON.stringify(settings));
+      // 匯出 settings.json 下載
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(settings, null, 2));
+      const dlAnchorElem = document.createElement('a');
+      dlAnchorElem.setAttribute("href", dataStr);
+      dlAnchorElem.setAttribute("download", "settings.json");
+      dlAnchorElem.click();
       alert("密碼設定已儲存！");
     }
 
