@@ -742,12 +742,12 @@
     const authKey = prompt("請輸入後台認證碼（Admin Password）：");
     if (!authKey) return alert("❌ 未提供認證碼，已取消儲存");
 
-    const questionsWithAuth = questions.map(q => ({
-      ...q,
-      authKey: authKey
-    }));
+    const payload = {
+      authKey,
+      list: questions
+    };
 
-    database.ref('toeicQuestions').set(questionsWithAuth)
+    database.ref('toeicQuestions').set(payload)
       .then(() => alert('✅ 題庫已儲存至 Firebase！'))
       .catch(error => alert('❌ 儲存失敗：' + error.message));
   }
