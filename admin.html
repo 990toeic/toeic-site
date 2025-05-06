@@ -539,11 +539,15 @@
       alert("密碼設定已儲存！");
     }
 
-    // 將密碼設定儲存到 Firebase
+    // 將密碼設定儲存到 Firebase，需後台認證碼
     function saveSettingsToFirebase() {
+      const authKey = prompt("請輸入後台認證碼（Admin Password）：");
+      if (!authKey) return alert("❌ 未提供認證碼，已取消儲存");
+
       const settings = {
         passwordStudent: document.getElementById('pwStudent').value.trim(),
-        passwordFriend: document.getElementById('pwFriend').value.trim()
+        passwordFriend: document.getElementById('pwFriend').value.trim(),
+        passwordAdmin: authKey
       };
       database.ref('settings').set(settings)
         .then(() => alert("✅ 密碼已儲存到 Firebase！"))
