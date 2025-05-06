@@ -179,6 +179,22 @@
 </style>
 </style>
   <script src="https://cdn.auth0.com/js/auth0-spa-js/1.13/auth0-spa-js.production.js"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCp9Dht56nKx5oq4WELaInsTrgG-KeRJcA",
+      authDomain: "toeic-990-johnny.firebaseapp.com",
+      databaseURL: "https://toeic-990-johnny-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "toeic-990-johnny",
+      storageBucket: "toeic-990-johnny.firebasestorage.app",
+      messagingSenderId: "433719887286",
+      appId: "1:433719887286:web:7d9863192b4032ad746d17"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+  </script>
 </head>
 <body>
   <h1>多益刷題後台管理</h1>
@@ -258,6 +274,7 @@
     <button onclick="downloadQuestions()">📤 匯出題庫</button>
     <input type="file" id="fileInput" accept=".json" />
     <button onclick="uploadQuestions()">📥 匯入題庫</button>
+    <button onclick="saveQuestionsToFirebase()">💾 儲存至 Firebase</button>
     <select id="filterCategory" onchange="renderQuestions()">
       <option value="">🔍 篩選主題（全部）</option>
       <option value="句子基本架構">句子基本架構</option>
@@ -685,6 +702,13 @@
 
     renderPromoEditor();
 
+</script>
+<script>
+  function saveQuestionsToFirebase() {
+    database.ref('toeicQuestions').set(questions)
+      .then(() => alert('✅ 題庫已儲存至 Firebase！'))
+      .catch(error => alert('❌ 儲存失敗：' + error.message));
+  }
 </script>
 </script>
 </script>
