@@ -280,14 +280,17 @@
     const pwFriend = localStorage.getItem('toeicSettings') ? JSON.parse(localStorage.getItem('toeicSettings')).passwordFriend : 'friend456';
     const pwStudent = localStorage.getItem('toeicSettings') ? JSON.parse(localStorage.getItem('toeicSettings')).passwordStudent : 'student123';
     function loadQuestions() {
-      const data = localStorage.getItem('toeicQuestions');
-      if (data) {
-        try {
-          allQuestions = JSON.parse(data);
-        } catch {
-          alert('題庫載入失敗');
-        }
-      }
+      fetch('toeic_69_questions_full.json')
+        .then(res => res.json())
+        .then(data => {
+          allQuestions = data;
+          filterPool();
+          renderCategoryOptions();
+          renderQuestion();
+        })
+        .catch(() => {
+          alert('❌ 題庫載入失敗，請確認 JSON 檔存在');
+        });
     }
     function filterPool() {
       const categoryRow = document.getElementById('categoryRow');
@@ -438,9 +441,6 @@
       }
     }
     loadQuestions();
-    filterPool();
-    renderCategoryOptions();
-    renderQuestion();
 
     let promoList = [];
 let promoIndex = 0;
