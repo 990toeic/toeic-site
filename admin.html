@@ -144,34 +144,39 @@
       background-color: #94a3b8;
       color: white;
     }
-    /* 宣傳區塊、宣傳 textarea、預覽區塊統一 margin/padding */
-    .promo-block,
-    #promoListContainer textarea,
-    #promoPreview {
-      margin: 0;
-      padding: 0;
-    }
     #promoListContainer textarea {
       width: 100%;
-      background-color: #fffefc;
       margin-bottom: 8px;
+      background-color: #fffefc;
     }
     #promoPreview {
+      padding: 12px;
       background-color: #fefce8;
       border: 1px solid #e2e8f0;
       border-radius: 4px;
       margin-top: 8px;
     }
 
-    .right-controls {
-      text-align: right;
-      margin-bottom: 8px;
+    /* 宣傳區塊消除上下空白 */
+    .promo-block {
+      margin: 0;
+      padding: 0;
+    }
+
+    #promoListContainer textarea {
+      margin: 0;
+    }
+
+    #promoPreview {
+      margin: 0;
+      padding: 0;
     }
 
     h3 {
       margin-top: 8px;
       margin-bottom: 4px;
     }
+</style>
 </style>
   <script src="https://cdn.auth0.com/js/auth0-spa-js/1.13/auth0-spa-js.production.js"></script>
 </head>
@@ -273,7 +278,7 @@
 
   <div class="section">
     <h2>現有題目</h2>
-    <div class="right-controls">
+    <div style="text-align:right; margin-bottom:8px;">
       <button onclick="toggleAllQuestions(true)">全部展開</button>
       <button onclick="toggleAllQuestions(false)">全部收合</button>
       <button onclick="clearAllQuestions()" style="background-color: darkred; color: white; margin-left: 10px;">🧹 清空全部題目</button>
@@ -600,6 +605,7 @@
         const textarea = document.createElement('textarea');
         textarea.value = html;
         textarea.rows = 5;
+        textarea.dataset.index = idx;
         textarea.oninput = () => previewPromo(textarea.value);
 
         const delBtn = document.createElement('button');
@@ -670,6 +676,9 @@
 
     renderPromoEditor();
 
+</script>
+</script>
+</script>
 </script>
   <script>
     // 預設隱藏頁面直到登入成功
