@@ -177,7 +177,8 @@
       margin-bottom: 4px;
     }
 </style>
-  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</style>
+  <script src="https://cdn.auth0.com/js/auth0-spa-js/1.13/auth0-spa-js.production.js"></script>
 </head>
 <body>
   <h1>多益刷題後台管理</h1>
@@ -678,23 +679,40 @@
 </script>
 </script>
 </script>
+</script>
   <script>
+    // 預設隱藏頁面直到登入成功
     document.addEventListener("DOMContentLoaded", () => {
-      const fullHTML = document.body.innerHTML;
-      document.body.innerHTML = ""; // 預設隱藏全部內容
-
-      netlifyIdentity.on("init", user => {
-        if (user) {
-          document.body.innerHTML = fullHTML; // 還原內容
-        } else {
-          netlifyIdentity.open("login");
-        }
+      document.body.style.display = "none";
+    });
+    document.addEventListener("DOMContentLoaded", async () => {
+      const auth0 = await createAuth0Client({
+        domain: "dev-7z1265005dk6z84u.us.auth0.com",
+        client_id: "wNeJKTUW7B4DZq79985l5DCCOTjsJHg2",
+        cacheLocation: 'localstorage'
       });
 
-      netlifyIdentity.on("login", () => window.location.reload());
-      netlifyIdentity.on("logout", () => window.location.reload());
+      const isAuthenticated = await auth0.isAuthenticated();
 
-      netlifyIdentity.init();
+      if (!isAuthenticated) {
+        const query = window.location.search;
+        if (query.includes("code=") && query.includes("state=")) {
+          try {
+            await auth0.handleRedirectCallback();
+            window.history.replaceState({}, document.title, "/admin.html");
+          } catch (err) {
+            alert("登入失敗：" + err.message);
+          }
+        } else {
+          await auth0.loginWithRedirect({
+            redirect_uri: window.location.href
+          });
+          return;
+        }
+      }
+
+      // 已登入，顯示頁面
+      document.body.style.display = "block";
     });
   </script>
 </body>
