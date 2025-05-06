@@ -318,19 +318,23 @@
       .finally(() => {
         loadQuestions(); // 初始化載入題庫
       });
-    function loadQuestions() {
-      // 從 Firebase 載入 toeicQuestions
-      database.ref('toeicQuestions').once('value')
-        .then(snapshot => {
-          allQuestions = snapshot.val() || [];
-          filterPool();
-          renderCategoryOptions();
-          renderQuestion();
-        })
-        .catch(() => {
-          alert('❌ 題庫載入失敗，請確認 Firebase 是否設置正確');
-        });
-    }
+function loadQuestions() {
+  // 從 Firebase 載入 toeicQuestions
+  database.ref('toeicQuestions').once('value')
+    .then(snapshot => {
+      // 移除 authKey 欄位
+      allQuestions = (snapshot.val() || []).map(q => {
+        const { authKey, ...rest } = q;
+        return rest;
+      });
+      filterPool();
+      renderCategoryOptions();
+      renderQuestion();
+    })
+    .catch(() => {
+      alert('❌ 題庫載入失敗，請確認 Firebase 是否設置正確');
+    });
+}
     function filterPool() {
       const categoryRow = document.getElementById('categoryRow');
       const categorySelect = document.getElementById('categoryFilter');
@@ -489,7 +493,7 @@ function loadPromoList() {
     .then(snapshot => {
       const data = snapshot.val();
       if (Array.isArray(data)) {
-        promoList = data;
+        promoList = data.slice(1); // 忽略 authKey
       } else {
         promoList = [];
       }
