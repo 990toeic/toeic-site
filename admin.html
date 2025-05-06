@@ -310,7 +310,7 @@
     }
 
     function loadQuestions() {
-      fetch('toeic_69_questions_full.json')
+      fetch('/toeic_69_questions_full.json')
         .then(res => res.json())
         .then(data => {
           questions = data;
