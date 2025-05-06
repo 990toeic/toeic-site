@@ -309,10 +309,15 @@
     }
 
     function loadQuestions() {
-      const saved = localStorage.getItem('toeicQuestions');
-      if (saved) {
-        try { questions = JSON.parse(saved); } catch (e) { questions = []; }
-      }
+      fetch('toeic_69_questions_full.json')
+        .then(res => res.json())
+        .then(data => {
+          questions = data;
+          renderQuestions();
+        })
+        .catch(() => {
+          alert('❌ 題庫載入失敗，請確認 toeic_69_questions_full.json 存在於網站根目錄');
+        });
     }
 
     function renderQuestions() {
