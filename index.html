@@ -240,6 +240,17 @@
       }
     }
 </style>
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script>
+    if (window.location.hash.includes("invite_token")) {
+      netlifyIdentity.on("init", user => {
+        if (!user) {
+          netlifyIdentity.open("signup");
+        }
+      });
+      netlifyIdentity.init();
+    }
+  </script>
 </head>
 <body>
   <div style="max-width: 720px; margin: 0 auto 5px auto; text-align: center;">
