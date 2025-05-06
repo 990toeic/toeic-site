@@ -293,26 +293,30 @@
     let userLevel = '訪客';
     let pwFriend = 'friend456';
     let pwStudent = 'student123';
-    fetch('settings.json')
-      .then(res => res.json())
-      .then(data => {
-        pwFriend = data.passwordFriend || pwFriend;
-        pwStudent = data.passwordStudent || pwStudent;
+    // 初始化 Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyCp9Dht56nKx5oq4WELaInsTrgG-KeRJcA",
+      authDomain: "toeic-990-johnny.firebaseapp.com",
+      databaseURL: "https://toeic-990-johnny-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "toeic-990-johnny",
+      storageBucket: "toeic-990-johnny.firebasestorage.app",
+      messagingSenderId: "433719887286",
+      appId: "1:433719887286:web:7d9863192b4032ad746d17"
+    };
+    firebase.initializeApp(firebaseConfig);
+    window.database = firebase.database();
+
+    // 從 Firebase 載入 settings
+    database.ref('settings').once('value')
+      .then(snapshot => {
+        const data = snapshot.val();
+        if (data) {
+          pwFriend = data.passwordFriend || pwFriend;
+          pwStudent = data.passwordStudent || pwStudent;
+        }
       })
       .finally(() => {
-        // 初始化 Firebase
-        const firebaseConfig = {
-          apiKey: "AIzaSyCp9Dht56nKx5oq4WELaInsTrgG-KeRJcA",
-          authDomain: "toeic-990-johnny.firebaseapp.com",
-          databaseURL: "https://toeic-990-johnny-default-rtdb.asia-southeast1.firebasedatabase.app",
-          projectId: "toeic-990-johnny",
-          storageBucket: "toeic-990-johnny.firebasestorage.app",
-          messagingSenderId: "433719887286",
-          appId: "1:433719887286:web:7d9863192b4032ad746d17"
-        };
-        firebase.initializeApp(firebaseConfig);
-        window.database = firebase.database();
-        loadQuestions();
+        loadQuestions(); // 初始化載入題庫
       });
     function loadQuestions() {
       // 從 Firebase 載入 toeicQuestions
