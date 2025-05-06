@@ -314,7 +314,7 @@
   <h2>宣傳內容管理（多組 / 支援 HTML）</h2>
   <div id="promoListContainer"></div>
   <button onclick="addPromoItem()">➕ 新增一段宣傳</button>
-  <button onclick="savePromoList()" style="margin-left:10px;">💾 儲存所有宣傳</button>
+  <button onclick="savePromoList(); savePromoListToFirebase()" style="margin-left:10px;">💾 儲存所有宣傳</button>
   <button onclick="clearPromoList()" style="margin-left:10px; background-color: darkred;">🧹 清空全部宣傳</button>
   <div id="promoSaveStatus" style="margin-top:10px; color:green; font-weight:bold;"></div>
 
@@ -681,11 +681,24 @@
     }
 
     function clearPromoList() {
-  localStorage.removeItem('toeicPromoList');
-  document.getElementById('promoSaveStatus').textContent = '🧹 已清空全部宣傳';
-  setTimeout(() => document.getElementById('promoSaveStatus').textContent = '', 3000);
-  renderPromoEditor();
-}
+      localStorage.removeItem('toeicPromoList');
+      document.getElementById('promoSaveStatus').textContent = '🧹 已清空全部宣傳';
+      setTimeout(() => document.getElementById('promoSaveStatus').textContent = '', 3000);
+      renderPromoEditor();
+    }
+
+    // 新增：將宣傳內容同步儲存到 Firebase
+    function savePromoListToFirebase() {
+      const updated = Array.from(document.querySelectorAll('#promoListContainer textarea')).map(t => t.value);
+      database.ref('promoList').set(updated)
+        .then(() => {
+          document.getElementById('promoSaveStatus').textContent = '✅ 宣傳內容已同步至 Firebase';
+        })
+        .catch(err => {
+          document.getElementById('promoSaveStatus').textContent = '❌ 儲存失敗：' + err.message;
+        });
+      setTimeout(() => document.getElementById('promoSaveStatus').textContent = '', 3000);
+    }
 
     function previewPromo(html) {
       document.getElementById('promoPreview').innerHTML = html;
