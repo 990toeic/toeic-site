@@ -177,7 +177,21 @@
       margin-bottom: 4px;
     }
 </style>
+<script>
+  // Netlify Identity 驗證（保護 admin.html）
+  if (window.netlifyIdentity) {
+    window.netlifyIdentity.on("init", user => {
+      if (!user) {
+        window.netlifyIdentity.open("login");
+      }
+    });
+    window.netlifyIdentity.on("login", () => {
+      document.location.href = "/admin.html";
+    });
+  }
+</script>
 </head>
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 <body>
   <h1>多益刷題後台管理</h1>
 
@@ -674,6 +688,9 @@
 
     renderPromoEditor();
 
+</script>
+  <script>
+    netlifyIdentity.init();
   </script>
 </body>
 </html>
