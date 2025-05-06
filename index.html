@@ -322,11 +322,16 @@ function loadQuestions() {
   // 從 Firebase 載入 toeicQuestions
   database.ref('toeicQuestions').once('value')
     .then(snapshot => {
-      // 移除 authKey 欄位
-      allQuestions = (snapshot.val() || []).map(q => {
-        const { authKey, ...rest } = q;
-        return rest;
-      });
+      // 修正：Firebase 回傳 Object，需轉為陣列
+      const data = snapshot.val();
+      if (data) {
+        allQuestions = Object.values(data).map(q => {
+          const { authKey, ...rest } = q;
+          return rest;
+        });
+      } else {
+        allQuestions = [];
+      }
       filterPool();
       renderCategoryOptions();
       renderQuestion();
