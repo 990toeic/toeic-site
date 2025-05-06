@@ -177,19 +177,8 @@
       margin-bottom: 4px;
     }
 </style>
-<script>
-  // Netlify Identity 驗證（保護 admin.html）
-  if (window.netlifyIdentity) {
-    window.netlifyIdentity.on("init", user => {
-      if (!user) {
-        window.netlifyIdentity.open("login");
-      }
-    });
-    window.netlifyIdentity.on("login", () => {
-      document.location.href = "/admin.html";
-    });
-  }
-</script>
+</head>
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 <body>
@@ -690,7 +679,17 @@
 
 </script>
   <script>
-    netlifyIdentity.init();
+    window.onload = function () {
+      netlifyIdentity.on("init", user => {
+        if (!user) {
+          netlifyIdentity.open("login");
+        }
+      });
+      netlifyIdentity.on("login", () => {
+        document.location.href = "/admin.html";
+      });
+      netlifyIdentity.init();
+    };
   </script>
 </body>
 </html>
