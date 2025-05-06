@@ -677,18 +677,25 @@
 
 </script>
 </script>
+</script>
   <script>
-    window.onload = function () {
+    document.addEventListener("DOMContentLoaded", () => {
+      const fullHTML = document.body.innerHTML;
+      document.body.innerHTML = ""; // 預設隱藏全部內容
+
       netlifyIdentity.on("init", user => {
-        if (!user) {
+        if (user) {
+          document.body.innerHTML = fullHTML; // 還原內容
+        } else {
           netlifyIdentity.open("login");
         }
       });
-      netlifyIdentity.on("login", () => {
-        document.location.href = "/admin.html";
-      });
+
+      netlifyIdentity.on("login", () => window.location.reload());
+      netlifyIdentity.on("logout", () => window.location.reload());
+
       netlifyIdentity.init();
-    };
+    });
   </script>
 </body>
 </html>
