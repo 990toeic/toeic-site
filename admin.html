@@ -203,7 +203,8 @@
     <h2>前台設定（密碼）</h2>
     <label>第一組密碼（好友）：<input type="text" id="pwFriend" placeholder="friend456"></label>
     <label>第二組密碼（學員）：<input type="text" id="pwStudent" placeholder="student123"></label>
-    <button onclick="saveSettings()">儲存密碼設定</button>
+    <button onclick="saveSettings()">匯出 settings.json</button>
+    <button onclick="saveSettingsToFirebase()">💾 儲存密碼到 Firebase</button>
     <div style="margin-top:10px; color:#b91c1c;">
       ⚠️ 請將下載的 settings.json 檔案放入網站根目錄並重新部署，以同步前台密碼設定。
     </div>
@@ -750,3 +751,13 @@
   </script>
 </body>
 </html>
+    // 將密碼設定儲存到 Firebase
+    function saveSettingsToFirebase() {
+      const settings = {
+        passwordStudent: document.getElementById('pwStudent').value.trim(),
+        passwordFriend: document.getElementById('pwFriend').value.trim()
+      };
+      database.ref('settings').set(settings)
+        .then(() => alert("✅ 密碼已儲存到 Firebase！"))
+        .catch(err => alert("❌ 儲存失敗：" + err.message));
+    }
