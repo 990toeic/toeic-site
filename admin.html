@@ -324,7 +324,8 @@
       auth0Client = await createAuth0Client({
         domain: "dev-7z1265005dk6z84u.us.auth0.com",
         client_id: "wNeJKTUW7B4DZq79985l5DCCOTjsJHg2",
-        redirect_uri: window.location.origin + "/admin.html"
+        redirect_uri: window.location.origin + "/admin.html",
+        audience: "https://toeic-990-johnny-default-rtdb.asia-southeast1.firebasedatabase.app"
       });
 
       if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
