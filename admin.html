@@ -177,6 +177,7 @@
       margin-bottom: 4px;
     }
 </style>
+  <script src="https://cdn.auth0.com/js/auth0-spa-js/1.13/auth0-spa-js.production.js"></script>
 </head>
 <body>
   <h1>多益刷題後台管理</h1>
@@ -300,6 +301,33 @@
 </div>
 
   <script>
+    // Auth0 初始化與登入控制
+    let auth0Client;
+    window.onload = async () => {
+      auth0Client = await createAuth0Client({
+        domain: "dev-7z1265005dk6z84u.us.auth0.com",
+        client_id: "wNeJKTUW7B4DZq79985l5DCCOTjsJHg2",
+        redirect_uri: window.location.origin + "/admin.html"
+      });
+
+      if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
+        await auth0Client.handleRedirectCallback();
+        window.history.replaceState({}, document.title, "/admin.html");
+      }
+
+      const isAuthenticated = await auth0Client.isAuthenticated();
+
+      if (!isAuthenticated) {
+        await auth0Client.loginWithRedirect();
+      } else {
+        const user = await auth0Client.getUser();
+        const allowList = ["your_email@example.com"];
+        if (!allowList.includes(user.email)) {
+          alert("未授權的帳號：" + user.email);
+          return;
+        }
+      }
+    };
     let questions = [];
     let currentPage = 1;
     const questionsPerPage = 20;
