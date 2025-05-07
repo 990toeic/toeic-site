@@ -187,6 +187,7 @@
     <label>第一組密碼（好友）：<input type="text" id="pwFriend" placeholder="friend456"></label>
     <label>第二組密碼（學員）：<input type="text" id="pwStudent" placeholder="student123"></label>
     <button onclick="saveSettings()">儲存密碼設定</button>
+    <button onclick="saveAllToFirebase()">💾 儲存所有變更</button>
   </div>
 
   <div class="section">
@@ -327,6 +328,25 @@
           return;
         }
       }
+
+      // 讀取 Firebase 資料（初始化）
+      const dbUrl = "https://toeic-990-johnny-default-rtdb.asia-southeast1.firebasedatabase.app/toeicData.json";
+      fetch(dbUrl)
+        .then(res => res.json())
+        .then(data => {
+          if (!data) return;
+
+          questions = data.questions || [];
+          const promoRaw = data.promoList || [];
+          localStorage.setItem('toeicPromoList', JSON.stringify(promoRaw));
+          renderPromoEditor();
+
+          const settings = data.settings || {};
+          document.getElementById('pwStudent').value = settings.passwordStudent || '';
+          document.getElementById('pwFriend').value = settings.passwordFriend || '';
+
+          renderQuestions();
+        });
     };
     let questions = [];
     let currentPage = 1;
@@ -575,9 +595,7 @@
     }
 
     document.getElementById('addBtn').addEventListener('click', addQuestion);
-    loadSettings();
-    loadQuestions();
-    renderQuestions();
+    // Firebase 載入後會自動 renderQuestions()
 
     // 全部展開/收合功能
     function toggleAllQuestions(expand) {
@@ -696,6 +714,28 @@
     }
 
     renderPromoEditor();
+
+    // 一鍵同步所有資料到 Firebase
+    async function saveAllToFirebase() {
+      const promoList = getCurrentList();
+      const settings = {
+        passwordStudent: document.getElementById('pwStudent').value.trim(),
+        passwordFriend: document.getElementById('pwFriend').value.trim()
+      };
+      const dataToSave = { settings, questions, promoList };
+
+      const response = await fetch("https://toeic-990-johnny-default-rtdb.asia-southeast1.firebasedatabase.app/toeicData.json", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dataToSave)
+      });
+
+      if (response.ok) {
+        alert("✅ 所有資料已成功儲存到 Firebase！");
+      } else {
+        alert("❌ 儲存失敗，請檢查網路或 Firebase 權限設定");
+      }
+    }
 
   </script>
 </body>
