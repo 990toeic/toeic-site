@@ -321,7 +321,7 @@
         await auth0Client.loginWithRedirect();
       } else {
         const user = await auth0Client.getUser();
-        const allowList = ["your_email@example.com"];
+        const allowList = ["johnnyice0109@gmail.com"];
         if (!allowList.includes(user.email)) {
           alert("未授權的帳號：" + user.email);
           return;
