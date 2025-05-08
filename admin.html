@@ -339,12 +339,7 @@
         await auth0Client.loginWithRedirect();
       } else {
         const user = await auth0Client.getUser();
-        const allowList = ["johnnyice0109@gmail.com"];
-        if (!allowList.includes(user.email)) {
-          alert("未授權的帳號：" + user.email);
-          return;
-        }
-        console.log("✅ Auth0 登入 email：", user.email);
+        console.log("✅ 登入成功：", user);
       }
 
       // 讀取 Firebase 資料（初始化）
