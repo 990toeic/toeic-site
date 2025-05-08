@@ -344,6 +344,7 @@
           alert("未授權的帳號：" + user.email);
           return;
         }
+        console.log("✅ Auth0 登入 email：", user.email);
       }
 
       // 讀取 Firebase 資料（初始化）
