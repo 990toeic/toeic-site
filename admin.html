@@ -729,18 +729,42 @@
       }
     }
 
-    // 插入 Tooltip 範例（單欄位用）
+    // 建立 tooltip HTML
+    function createTooltipHTML(showText, tipText, link) {
+      const encodedTip = tipText.replace(/"/g, '&quot;');
+      const content = `<span class="tipbox" data-tip="${encodedTip}">${showText}</span>`;
+      if (link) {
+        return `<a href="${link}" target="_blank">${content}</a>`;
+      } else {
+        return content;
+      }
+    }
+
+    // 彈出三欄輸入視窗，回傳 tooltip HTML
+    function promptTooltipParts() {
+      // 三個 prompt 依序
+      const tipText = prompt("請輸入提示內容（滑鼠移上去顯示的文字）");
+      if (tipText === null) return null;
+      const showText = prompt("請輸入顯示文字（出現在畫面上的字）");
+      if (showText === null) return null;
+      const link = prompt("（可選）請輸入連結網址（若無可留空）") || '';
+      return createTooltipHTML(showText.trim(), tipText.trim(), link.trim());
+    }
+
+    // 插入 Tooltip HTML（單欄位用）
     function insertTooltipTemplate(fieldId) {
+      const html = promptTooltipParts();
+      if (!html) return;
       const field = document.getElementById(fieldId);
-      const example = `<a href='#' target='_blank'><span class="tipbox" data-tip="提示內容">顯示文字</span></a>`;
-      field.value += (field.value ? '\n' : '') + example;
+      field.value += (field.value ? '\n' : '') + html;
       field.focus();
     }
 
-    // 插入 Tooltip 範例（現有題目 textarea 用）
+    // 插入 Tooltip HTML（textarea 直接用）
     function insertTooltipAt(textarea) {
-      const example = `<a href='#' target='_blank'><span class="tipbox" data-tip="提示內容">顯示文字</span></a>`;
-      textarea.value += (textarea.value ? '\n' : '') + example;
+      const html = promptTooltipParts();
+      if (!html) return;
+      textarea.value += (textarea.value ? '\n' : '') + html;
       textarea.focus();
     }
   </script>
