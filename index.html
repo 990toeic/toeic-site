@@ -373,23 +373,24 @@
       }
       shuffledIndex = 0;
     }
-    function filterByCategory() {
-      const selected = document.getElementById('categoryFilter').value;
+function filterByCategory() {
+  const selected = document.getElementById('categoryFilter').value;
 
-      currentPool = allQuestions.filter(q => {
-        const allow =
-          userLevel === '學員' ||
-          userLevel === '好友' ||
-          q.auth === '訪客'; // 權限過濾
+  currentPool = allQuestions.filter(q => {
+    const allow =
+      userLevel === '學員' ||
+      userLevel === '好友' ||
+      q.auth === '訪客'; // 權限過濾
 
-        const matchCategory = selected ? q.category === selected : true;
+    const matchCategory = selected ? q.category === selected : true;
 
-        return allow && matchCategory;
-      });
+    return allow && matchCategory;
+  });
 
-      shuffleCurrentPool();
-      renderQuestion();
-    }
+  shuffleCurrentPool();
+  currentQuestionIndex = 0;
+  renderQuestion();
+}
     function renderQuestion() {
       simplified = false;
       showHint = false;
