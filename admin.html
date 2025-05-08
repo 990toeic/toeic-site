@@ -178,20 +178,6 @@
     }
 </style>
 </style>
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js"></script>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-    const firebaseConfig = {
-      apiKey: "AIzaSyCp9Dht56nKx5oq4WELaInsTrgG-KeRJcA",
-      authDomain: "toeic-990-johnny.firebaseapp.com",
-      databaseURL: "https://toeic-990-johnny-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "toeic-990-johnny",
-      storageBucket: "toeic-990-johnny.firebasestorage.app",
-      messagingSenderId: "433719887286",
-      appId: "1:433719887286:web:43418d0c883462f1746d17"
-    };
-    const app = initializeApp(firebaseConfig);
-  </script>
 </head>
 <body>
   <div id="loginBox">
@@ -769,8 +755,22 @@
     }
   </script>
 
+
 <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCp9Dht56nKx5oq4WELaInsTrgG-KeRJcA",
+    authDomain: "toeic-990-johnny.firebaseapp.com",
+    databaseURL: "https://toeic-990-johnny-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "toeic-990-johnny",
+    storageBucket: "toeic-990-johnny.firebasestorage.app",
+    messagingSenderId: "433719887286",
+    appId: "1:433719887286:web:43418d0c883462f1746d17"
+  };
+
+  const app = initializeApp(firebaseConfig);
   const auth = getAuth();
 
   async function login() {
@@ -805,6 +805,7 @@
       alert("登入失敗：" + e.message);
     }
   }
+
   window.login = login;
 </script>
 
