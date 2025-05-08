@@ -240,6 +240,20 @@
       }
     }
 </style>
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <!-- Firebase SDK 載入 -->
+  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-database-compat.js"></script>
+  <script>
+    if (window.location.hash.includes("invite_token")) {
+      netlifyIdentity.on("init", user => {
+        if (!user) {
+          netlifyIdentity.open("signup");
+        }
+      });
+      netlifyIdentity.init();
+    }
+  </script>
 </head>
 <body>
   <div style="max-width: 720px; margin: 0 auto 5px auto; text-align: center;">
@@ -277,30 +291,55 @@
     let showHint = false;
     let selectedOption = '';
     let userLevel = '訪客';
-    let pwFriend = '';
-    let pwStudent = '';
-    function loadQuestions() {
-      fetch('https://toeic-990-johnny-default-rtdb.asia-southeast1.firebasedatabase.app/toeicData.json')
-        .then(res => res.json())
-        .then(data => {
-          allQuestions = data.questions || [];
-          const settings = data.settings || {};
-          const promoListRaw = data.promoList || [];
+    let pwFriend = 'friend456';
+    let pwStudent = 'student123';
+    // 初始化 Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyCp9Dht56nKx5oq4WELaInsTrgG-KeRJcA",
+      authDomain: "toeic-990-johnny.firebaseapp.com",
+      databaseURL: "https://toeic-990-johnny-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "toeic-990-johnny",
+      storageBucket: "toeic-990-johnny.firebasestorage.app",
+      messagingSenderId: "433719887286",
+      appId: "1:433719887286:web:7d9863192b4032ad746d17"
+    };
+    firebase.initializeApp(firebaseConfig);
+    window.database = firebase.database();
 
-          // localStorage.setItem('toeicSettings', JSON.stringify(settings));
-          localStorage.setItem('toeicPromoList', JSON.stringify(promoListRaw));
-
-          pwFriend = settings.passwordFriend || '';
-          pwStudent = settings.passwordStudent || '';
-
-          filterPool();
-          renderCategoryOptions();
-          renderQuestion();
-        })
-        .catch(() => {
-          alert('❌ 題庫載入失敗，請確認 JSON 檔存在');
+    // 從 Firebase 載入 settings
+    database.ref('settings').once('value')
+      .then(snapshot => {
+        const data = snapshot.val();
+        if (data) {
+          pwFriend = data.passwordFriend || pwFriend;
+          pwStudent = data.passwordStudent || pwStudent;
+        }
+      })
+      .finally(() => {
+        loadQuestions(); // 初始化載入題庫
+      });
+function loadQuestions() {
+  // 從 Firebase 載入 toeicQuestions
+  database.ref('toeicQuestions').once('value')
+    .then(snapshot => {
+      // 修正：Firebase 回傳 Object，需轉為陣列
+      const data = snapshot.val();
+      if (data) {
+        allQuestions = Object.values(data).map(q => {
+          const { authKey, ...rest } = q;
+          return rest;
         });
-    }
+      } else {
+        allQuestions = [];
+      }
+      filterPool();
+      renderCategoryOptions();
+      renderQuestion();
+    })
+    .catch(() => {
+      alert('❌ 題庫載入失敗，請確認 Firebase 是否設置正確');
+    });
+}
     function filterPool() {
       const categoryRow = document.getElementById('categoryRow');
       const categorySelect = document.getElementById('categoryFilter');
@@ -449,19 +488,24 @@
         renderQuestion();
       }
     }
-    loadQuestions();
+    // loadQuestions 於 Firebase 初始化後呼叫
 
-    let promoList = [];
+let promoList = [];
 let promoIndex = 0;
 
 function loadPromoList() {
-  const data = localStorage.getItem('toeicPromoList');
-  try {
-    promoList = JSON.parse(data);
-    if (!Array.isArray(promoList)) promoList = [];
-  } catch {
-    promoList = [];
-  }
+  database.ref('promoList').once('value')
+    .then(snapshot => {
+      const data = snapshot.val();
+      if (Array.isArray(data)) {
+        promoList = data.slice(1); // 忽略 authKey
+      } else {
+        promoList = [];
+      }
+    })
+    .catch(() => {
+      promoList = [];
+    });
 }
 
 function showPromo() {
