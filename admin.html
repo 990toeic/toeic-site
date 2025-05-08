@@ -220,8 +220,10 @@
     <label for="qAnswer">正確答案（如 A/B/C/D）</label>
     <input id="qAnswer" placeholder="請輸入正確答案代號" />
     <label for="qExplanation">解析</label>
+    <button type="button" class="secondary" onclick="insertTooltipTemplate('qExplanation')">插入 Tooltip 範例</button>
     <textarea id="qExplanation" placeholder="解釋正確答案的理由"></textarea>
     <label for="qHint">提示</label>
+    <button type="button" class="secondary" onclick="insertTooltipTemplate('qHint')">插入 Tooltip 範例</button>
     <textarea id="qHint" placeholder="提供給學生的解題提示"></textarea>
     <label for="qDeleteWords">刪除文字（用逗號分隔）</label>
     <input id="qDeleteWords" placeholder="例如：highly, in the new position" />
@@ -721,6 +723,13 @@
       }
     }
 
+    // 插入 Tooltip 範例
+    function insertTooltipTemplate(fieldId) {
+      const field = document.getElementById(fieldId);
+      const example = `<a href='#' target='_blank'><span class="tooltip" data-tooltip="提示內容">顯示文字</span></a>`;
+      field.value += (field.value ? '\n' : '') + example;
+      field.focus();
+    }
   </script>
 </body>
 </html>
