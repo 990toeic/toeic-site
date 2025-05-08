@@ -456,7 +456,10 @@ function renderQuestion() {
   document.getElementById('submitBtn').textContent = '送出';
 
   if (!shuffledPool.length) {
-    alert('⚠️ 題庫為空，請確認登入權限或是否匯入資料');
+    const msg = wrongMode
+      ? '目前沒有符合條件的錯題'
+      : '⚠️ 題庫為空，請確認登入權限或是否匯入資料';
+    alert(msg);
     return;
   }
 
@@ -544,6 +547,14 @@ function submitAnswer() {
     btn.textContent = '下一題';
     showPromo();
   } else {
+    // ✅ 新增錯題完成檢查邏輯
+    if (wrongMode && wrongList.length === 0) {
+      alert("🎉 錯題全部完成，已自動切換回一般模式");
+      wrongMode = false;
+      document.getElementById('wrongModeBtn').textContent = '回顧錯題';
+      filterByCategory();
+      return;
+    }
     // 切換進度記錄
     if (wrongMode) {
       wrongIndex = shuffledIndex;
