@@ -315,6 +315,8 @@
     let userLevel = '訪客';
     let pwFriend = '';
     let pwStudent = '';
+    let shuffledPool = [];
+    let shuffledIndex = 0;
     function loadQuestions() {
       fetch('https://toeic-990-johnny-default-rtdb.asia-southeast1.firebasedatabase.app/toeicData.json')
         .then(res => res.json())
@@ -350,6 +352,7 @@
         categoryRow.style.display = 'block';
         categorySelect.disabled = true;
       }
+      shuffleCurrentPool();
     }
     function renderCategoryOptions() {
       const select = document.getElementById('categoryFilter');
@@ -446,7 +449,11 @@
         btn.textContent = '下一題';
         showPromo(); // ✅ 顯示宣傳
       } else {
-        currentQuestionIndex = Math.floor(Math.random() * currentPool.length);
+        if (shuffledIndex >= shuffledPool.length) {
+          shuffleCurrentPool();
+        }
+        currentQuestionIndex = currentPool.indexOf(shuffledPool[shuffledIndex]);
+        shuffledIndex++;
         renderQuestion();
         document.getElementById('promoArea').innerHTML = ''; // ✅ 清空宣傳
       }
