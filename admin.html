@@ -403,6 +403,10 @@
         const formDiv = document.createElement('div');
         formDiv.className = 'question-form';
 
+        // 解析 textarea + 插入 Tooltip 按鈕
+        const explanationId = `explanation-${globalIndex}`;
+        const hintId = `hint-${globalIndex}`;
+
         formDiv.innerHTML = `
           <div class="field-group" style="grid-column: span 2;">
             <label>題目：</label>
@@ -418,11 +422,13 @@
           </div>
           <div class="field-group" style="grid-column: span 2;">
             <label>解析：</label>
-            <textarea rows="3" style="flex:1" onchange="questions[${globalIndex}].explanation = this.value; saveQuestions()">${q.explanation}</textarea>
+            <textarea id="${explanationId}" rows="3" style="flex:1" onchange="questions[${globalIndex}].explanation = this.value; saveQuestions()">${q.explanation}</textarea>
+            <button type="button" class="secondary" onclick="insertTooltipAt(this.previousElementSibling)">插入 Tooltip 範例</button>
           </div>
           <div class="field-group" style="grid-column: span 2;">
             <label>提示：</label>
-            <textarea rows="2" style="flex:1" onchange="questions[${globalIndex}].hint = this.value; saveQuestions()">${q.hint}</textarea>
+            <textarea id="${hintId}" rows="2" style="flex:1" onchange="questions[${globalIndex}].hint = this.value; saveQuestions()">${q.hint}</textarea>
+            <button type="button" class="secondary" onclick="insertTooltipAt(this.previousElementSibling)">插入 Tooltip 範例</button>
           </div>
           <div class="field-group" style="grid-column: span 2;">
             <label>刪除文字：</label>
@@ -723,12 +729,19 @@
       }
     }
 
-    // 插入 Tooltip 範例
+    // 插入 Tooltip 範例（單欄位用）
     function insertTooltipTemplate(fieldId) {
       const field = document.getElementById(fieldId);
-      const example = `<a href='#' target='_blank'><span class="tooltip" data-tooltip="提示內容">顯示文字</span></a>`;
+      const example = `<a href='#' target='_blank'><span class="tipbox" data-tip="提示內容">顯示文字</span></a>`;
       field.value += (field.value ? '\n' : '') + example;
       field.focus();
+    }
+
+    // 插入 Tooltip 範例（現有題目 textarea 用）
+    function insertTooltipAt(textarea) {
+      const example = `<a href='#' target='_blank'><span class="tipbox" data-tip="提示內容">顯示文字</span></a>`;
+      textarea.value += (textarea.value ? '\n' : '') + example;
+      textarea.focus();
     }
   </script>
 </body>
