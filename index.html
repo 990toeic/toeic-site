@@ -529,6 +529,23 @@ function filterByCategory() {
     let promoList = [];
 let promoIndex = 0;
 
+function loadProgress() {
+  const saved = localStorage.getItem('toeicProgress');
+  if (!saved) return;
+  try {
+    const parsed = JSON.parse(saved);
+    if (Array.isArray(parsed.wrongList)) wrongList = parsed.wrongList;
+    if (typeof parsed.shuffledIndex === 'number') shuffledIndex = parsed.shuffledIndex;
+  } catch {}
+}
+
+function saveProgress() {
+  localStorage.setItem('toeicProgress', JSON.stringify({
+    shuffledIndex,
+    wrongList
+  }));
+}
+
 function loadPromoList() {
   const data = localStorage.getItem('toeicPromoList');
   try {
