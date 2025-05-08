@@ -365,6 +365,14 @@
         select.appendChild(opt);
       });
     }
+    function shuffleCurrentPool() {
+      shuffledPool = [...currentPool];
+      for (let i = shuffledPool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledPool[i], shuffledPool[j]] = [shuffledPool[j], shuffledPool[i]];
+      }
+      shuffledIndex = 0;
+    }
     function filterByCategory() {
       const selected = document.getElementById('categoryFilter').value;
       currentPool = selected ? allQuestions.filter(q => q.category === selected) : [...allQuestions];
