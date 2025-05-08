@@ -327,6 +327,31 @@
   </div>
 
   <script>
+    // 登入功能
+    window.login = async function () {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      if (!email || !password) {
+        alert("請輸入 Email 和密碼");
+        return;
+      }
+
+      try {
+        const auth = firebase.getAuth();
+        const userCredential = await firebase.signInWithEmailAndPassword(auth, email, password);
+        const token = await userCredential.user.getIdToken();
+        window.getFirebaseToken = () => token;
+
+        document.getElementById('loginBox').style.display = 'none';
+        document.getElementById('mainContent').style.display = '';
+        loadQuestions();
+        loadSettings();
+        renderQuestions();
+      } catch (error) {
+        alert("登入失敗：" + error.message);
+        console.error(error);
+      }
+    };
     let questions = [];
     let currentPage = 1;
     const questionsPerPage = 20;
