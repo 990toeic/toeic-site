@@ -172,11 +172,29 @@
       padding: 0;
     }
 
-    h3 {
+</style>
+    /* Tooltip Form 樣式 */
+    .tooltip-form {
       margin-top: 8px;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 12px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+    .tooltip-form label {
+      display: block;
+      font-weight: bold;
       margin-bottom: 4px;
     }
-</style>
+    .tooltip-form input {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 6px 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      background: #ffffff;
+    }
 </style>
 </head>
 <body>
@@ -206,10 +224,10 @@
     <label for="qAnswer">正確答案（如 A/B/C/D）</label>
     <input id="qAnswer" placeholder="請輸入正確答案代號" />
     <label for="qExplanation">解析</label>
-    <button type="button" class="secondary" onclick="insertTooltipTemplate('qExplanation')">插入 Tooltip 範例</button>
+    <button type="button" class="secondary" onclick="insertTooltipForm(document.getElementById('qExplanation'))">插入 Tooltip</button>
     <textarea id="qExplanation" placeholder="解釋正確答案的理由"></textarea>
     <label for="qHint">提示</label>
-    <button type="button" class="secondary" onclick="insertTooltipTemplate('qHint')">插入 Tooltip 範例</button>
+    <button type="button" class="secondary" onclick="insertTooltipForm(document.getElementById('qHint'))">插入 Tooltip</button>
     <textarea id="qHint" placeholder="提供給學生的解題提示"></textarea>
     <label for="qDeleteWords">刪除文字（用逗號分隔）</label>
     <input id="qDeleteWords" placeholder="例如：highly, in the new position" />
@@ -409,12 +427,12 @@
           <div class="field-group" style="grid-column: span 2;">
             <label>解析：</label>
             <textarea id="${explanationId}" rows="3" style="flex:1" onchange="questions[${globalIndex}].explanation = this.value; saveQuestions()">${q.explanation}</textarea>
-            <button type="button" class="secondary" onclick="insertTooltipAt(this.previousElementSibling)">插入 Tooltip 範例</button>
+            <button type="button" class="secondary" onclick="insertTooltipForm(this.previousElementSibling)">插入 Tooltip</button>
           </div>
           <div class="field-group" style="grid-column: span 2;">
             <label>提示：</label>
             <textarea id="${hintId}" rows="2" style="flex:1" onchange="questions[${globalIndex}].hint = this.value; saveQuestions()">${q.hint}</textarea>
-            <button type="button" class="secondary" onclick="insertTooltipAt(this.previousElementSibling)">插入 Tooltip 範例</button>
+            <button type="button" class="secondary" onclick="insertTooltipForm(this.previousElementSibling)">插入 Tooltip</button>
           </div>
           <div class="field-group" style="grid-column: span 2;">
             <label>刪除文字：</label>
@@ -715,43 +733,36 @@
       }
     }
 
-    // 建立 tooltip HTML
-    function createTooltipHTML(showText, tipText, link) {
-      const encodedTip = tipText.replace(/"/g, '&quot;');
-      const content = `<span class="tipbox" data-tip="${encodedTip}">${showText}</span>`;
-      if (link) {
-        return `<a href="${link}" target="_blank">${content}</a>`;
-      } else {
-        return content;
-      }
+    // 插入 Tooltip 表單
+    function insertTooltipForm(textarea) {
+      if (textarea.nextElementSibling?.classList?.contains('tooltip-form')) return;
+
+      const form = document.createElement('div');
+      form.className = 'tooltip-form';
+      form.innerHTML = `
+        <label>提示內容 <input type="text" class="tooltip-tip"></label>
+        <label>顯示文字 <input type="text" class="tooltip-show"></label>
+        <label>超連結網址（可留空）<input type="text" class="tooltip-link"></label>
+        <div style="text-align:right; margin-top:6px;">
+          <button type="button" class="secondary" onclick="confirmTooltipInsert(this)">插入</button>
+          <button type="button" onclick="this.closest('.tooltip-form').remove()">取消</button>
+        </div>
+      `;
+      textarea.insertAdjacentElement('afterend', form);
     }
 
-    // 彈出三欄輸入視窗，回傳 tooltip HTML
-    function promptTooltipParts() {
-      // 三個 prompt 依序
-      const tipText = prompt("請輸入提示內容（滑鼠移上去顯示的文字）");
-      if (tipText === null) return null;
-      const showText = prompt("請輸入顯示文字（出現在畫面上的字）");
-      if (showText === null) return null;
-      const link = prompt("（可選）請輸入連結網址（若無可留空）") || '';
-      return createTooltipHTML(showText.trim(), tipText.trim(), link.trim());
-    }
-
-    // 插入 Tooltip HTML（單欄位用）
-    function insertTooltipTemplate(fieldId) {
-      const html = promptTooltipParts();
-      if (!html) return;
-      const field = document.getElementById(fieldId);
-      field.value += (field.value ? '\n' : '') + html;
-      field.focus();
-    }
-
-    // 插入 Tooltip HTML（textarea 直接用）
-    function insertTooltipAt(textarea) {
-      const html = promptTooltipParts();
-      if (!html) return;
+    function confirmTooltipInsert(btn) {
+      const form = btn.closest('.tooltip-form');
+      const textarea = form.previousElementSibling;
+      const tip = form.querySelector('.tooltip-tip').value.trim().replace(/"/g, '&quot;');
+      const show = form.querySelector('.tooltip-show').value.trim();
+      const link = form.querySelector('.tooltip-link').value.trim();
+      const html = link
+        ? `<a href="${link}" target="_blank"><span class="tipbox" data-tip="${tip}">${show}</span></a>`
+        : `<span class="tipbox" data-tip="${tip}">${show}</span>`;
       textarea.value += (textarea.value ? '\n' : '') + html;
       textarea.focus();
+      form.remove();
     }
   </script>
 
