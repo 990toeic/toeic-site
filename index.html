@@ -82,6 +82,9 @@
       margin-left: auto;
       font-size: 14px;
       color: #666;
+      min-width: 90px; /* ✅ 固定寬度防止排版跳動 */
+      text-align: right;
+      display: inline-block;
     }
     .question-block {
       background: #ffffff;
@@ -311,6 +314,7 @@
     <select id="categoryFilter" onchange="filterByCategory()" style="padding: 4px 8px; font-size: 13px; border-radius: 4px; border: 1px solid #ccc; margin: 0;">
       <option value="">-- 全部主題 --</option>
     </select>
+    <button onclick="toggleWrongMode()" id="wrongModeBtn" style="padding: 6px 10px; font-size: 14px; background-color: #f5f5f5; color: #333; border: 1px solid #999; border-radius: 4px; cursor: pointer;">切換錯題模式</button>
     <span id="progressBox" style="font-size:12px; color:#888; margin-left:10px;"></span>
   </div>
   <div style="height: 36px;"></div>
@@ -346,6 +350,10 @@
     let shuffledPool = [];
     let shuffledIndex = 0;
     let wrongList = [];
+    // 錯題模式狀態
+    let wrongMode = false;
+    let generalIndex = 0;
+    let wrongIndex = 0;
     function loadQuestions() {
       fetch('https://toeic-990-johnny-default-rtdb.asia-southeast1.firebasedatabase.app/toeicData.json')
         .then(res => res.json())
@@ -406,19 +414,27 @@
 function filterByCategory() {
   const selected = document.getElementById('categoryFilter').value;
 
-  currentPool = allQuestions.filter(q => {
+  const sourcePool = wrongMode
+    ? allQuestions.filter(q => wrongList.includes(q.text))
+    : allQuestions;
+
+  currentPool = sourcePool.filter(q => {
     const allow =
       userLevel === '學員' ||
       userLevel === '好友' ||
-      q.auth === '訪客'; // 權限過濾
-
+      q.auth === '訪客';
     const matchCategory = selected ? q.category === selected : true;
-
     return allow && matchCategory;
   });
 
-  shuffleCurrentPool();
-  currentQuestionIndex = 0;
+  // 更新 shuffledPool 以供 render 使用
+  shuffledPool = [...currentPool];
+  for (let i = shuffledPool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledPool[i], shuffledPool[j]] = [shuffledPool[j], shuffledPool[i]];
+  }
+
+  shuffledIndex = 0;
   renderQuestion();
 }
     function renderQuestion() {
@@ -435,7 +451,8 @@ function filterByCategory() {
         document.getElementById('progressBox').textContent = '';
         return;
       }
-      const q = currentPool[currentQuestionIndex];
+      // ✅ 修正 1：題目來源與進度來源錯誤
+      const q = shuffledPool[shuffledIndex];
       document.getElementById('questionText').innerHTML = applySimplify(q.text, q.deleteWords);
       const optionsDiv = document.getElementById('options');
       optionsDiv.innerHTML = '';
@@ -454,8 +471,9 @@ function filterByCategory() {
         <span class="meta-tag">${q.type}</span>
         <span class="meta-tag">${q.auth}</span>
         <span class="meta-tag">${q.category}</span>`;
+      // ✅ 修正 3：進度顯示以 shuffledPool 為主
       document.getElementById('progressBox').textContent =
-        `第 ${Math.min(shuffledIndex + 1, currentPool.length)} / ${currentPool.length} 題`;
+        `第 ${Math.min(shuffledIndex + 1, shuffledPool.length)} / ${shuffledPool.length} 題`;
     }
     function applySimplify(text, deleteWords) {
       if (!simplified || !deleteWords || !deleteWords.length) return text;
@@ -487,35 +505,86 @@ function filterByCategory() {
       const selectedEl = document.getElementById('opt' + letter);
       if (selectedEl) selectedEl.classList.add('selected');
     }
-    function submitAnswer() {
-      const btn = document.getElementById('submitBtn');
-      const q = currentPool[currentQuestionIndex];
-      if (btn.textContent === '送出') {
-        if (!selectedOption) {
-          btn.classList.add('shake');
-          setTimeout(() => btn.classList.remove('shake'), 300);
+function submitAnswer() {
+  const btn = document.getElementById('submitBtn');
+  const q = shuffledPool[shuffledIndex];
+
+  if (btn.textContent === '送出') {
+    if (!selectedOption) {
+      btn.classList.add('shake');
+      setTimeout(() => btn.classList.remove('shake'), 300);
+      return;
+    }
+
+    const correct = selectedOption === q.answer;
+
+    // 錯誤加入錯題清單（不重複）
+    if (!correct && !wrongList.includes(q.text)) {
+      wrongList.push(q.text);
+    }
+
+    // 錯題模式下，答對才移除該題
+    if (correct && wrongMode && wrongList.includes(q.text)) {
+      wrongList = wrongList.filter(t => t !== q.text);
+    }
+
+    saveProgress();
+
+    document.getElementById('explanationBox').style.display = 'block';
+    document.getElementById('explanationBox').innerHTML =
+      (correct ? '✅ 答對！' : '❌ 答錯。') + ' ' + q.explanation;
+
+    btn.textContent = '下一題';
+    showPromo();
+  } else {
+    // 切換進度記錄
+    if (wrongMode) {
+      wrongIndex = shuffledIndex;
+    } else {
+      generalIndex = shuffledIndex;
+    }
+
+    // 下一題
+    shuffledIndex++;
+    if (shuffledIndex >= shuffledPool.length) {
+      if (wrongMode) {
+        if (wrongList.length === 0) {
+          alert("🎉 錯題已全部完成，已回到一般模式");
+          wrongMode = false;
+          document.getElementById('wrongModeBtn').textContent = '回顧錯題';
+          shuffledIndex = 0;
+          filterByCategory();
+          renderQuestion();
+          saveProgress();
           return;
-        }
-        const correct = selectedOption === q.answer;
-        if (!correct && !wrongList.includes(q.text)) {
-          wrongList.push(q.text);
-        }
-        saveProgress();
-        document.getElementById('explanationBox').style.display = 'block';
-        document.getElementById('explanationBox').innerHTML = (correct ? '✅ 答對！' : '❌ 答錯。') + ' ' + q.explanation;
-        btn.textContent = '下一題';
-        showPromo(); // ✅ 顯示宣傳
-      } else {
-        if (shuffledIndex >= shuffledPool.length) {
+        } else {
+          // 還有錯題，重建 shuffledPool
+          shuffledPool = allQuestions
+            .filter(q => wrongList.includes(q.text))
+            .filter(q => {
+              const selected = document.getElementById('categoryFilter').value;
+              const allow =
+                userLevel === '學員' ||
+                userLevel === '好友' ||
+                q.auth === '訪客';
+              const matchCategory = selected ? q.category === selected : true;
+              return allow && matchCategory;
+            });
           shuffleCurrentPool();
+          shuffledIndex = 0;
         }
-        currentQuestionIndex = currentPool.indexOf(shuffledPool[shuffledIndex]);
-        shuffledIndex++;
-        renderQuestion();
-        document.getElementById('promoArea').innerHTML = ''; // ✅ 清空宣傳
-        saveProgress();
+      } else {
+        // 一般模式：正常洗牌
+        shuffleCurrentPool();
+        shuffledIndex = 0;
       }
     }
+
+    renderQuestion();
+    document.getElementById('promoArea').innerHTML = '';
+    saveProgress();
+  }
+}
     document.addEventListener('keydown', e => {
       if (e.key === 'Enter') {
         submitAnswer();
@@ -556,21 +625,23 @@ function filterByCategory() {
     let promoList = [];
 let promoIndex = 0;
 
+function saveProgress() {
+  localStorage.setItem('toeicProgress', JSON.stringify({
+    wrongList,
+    generalIndex,
+    wrongIndex
+  }));
+}
+
 function loadProgress() {
   const saved = localStorage.getItem('toeicProgress');
   if (!saved) return;
   try {
     const parsed = JSON.parse(saved);
     if (Array.isArray(parsed.wrongList)) wrongList = parsed.wrongList;
-    if (typeof parsed.shuffledIndex === 'number') shuffledIndex = parsed.shuffledIndex;
+    if (typeof parsed.generalIndex === 'number') generalIndex = parsed.generalIndex;
+    if (typeof parsed.wrongIndex === 'number') wrongIndex = parsed.wrongIndex;
   } catch {}
-}
-
-function saveProgress() {
-  localStorage.setItem('toeicProgress', JSON.stringify({
-    shuffledIndex,
-    wrongList
-  }));
 }
 
 function loadPromoList() {
@@ -590,6 +661,26 @@ function showPromo() {
   }
   promoIndex = (promoIndex + 1) % promoList.length;
   document.getElementById('promoArea').innerHTML = promoList[promoIndex];
+}
+
+// 錯題模式切換功能
+function toggleWrongMode() {
+  wrongMode = !wrongMode;
+
+  const btn = document.getElementById('wrongModeBtn');
+  btn.textContent = wrongMode ? '繼續刷題' : '回顧錯題';
+
+  // 先確認有錯題，否則回到一般模式
+  if (wrongMode) {
+    if (!wrongList.length) {
+      alert('目前沒有錯題可練習');
+      wrongMode = false;
+      btn.textContent = '回顧錯題';
+      return;
+    }
+  }
+
+  filterByCategory();
 }
 
 // 修改 submitAnswer() 函式中的送出邏輯：
