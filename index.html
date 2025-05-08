@@ -291,6 +291,7 @@
     </select>
   </div>
   <div class="question-block">
+    <div id="progressBox" style="text-align:center; font-size:14px; color:#888; margin-bottom:8px;"></div>
     <div class="question-text" id="questionText"></div>
     <div id="options"></div>
     <div class="meta-row">
@@ -317,6 +318,7 @@
     let pwStudent = '';
     let shuffledPool = [];
     let shuffledIndex = 0;
+    let wrongList = [];
     function loadQuestions() {
       fetch('https://toeic-990-johnny-default-rtdb.asia-southeast1.firebasedatabase.app/toeicData.json')
         .then(res => res.json())
@@ -334,6 +336,7 @@
 
           filterPool();
           renderCategoryOptions();
+          loadProgress();
           renderQuestion();
         })
         .catch(() => {
@@ -402,6 +405,7 @@ function filterByCategory() {
         document.getElementById('questionText').innerHTML = '⚠️ 題庫為空，請確認權限或匯入資料';
         document.getElementById('options').innerHTML = '';
         document.getElementById('tags').innerHTML = '';
+        document.getElementById('progressBox').textContent = '';
         return;
       }
       const q = currentPool[currentQuestionIndex];
@@ -423,6 +427,8 @@ function filterByCategory() {
         <span class="meta-tag">${q.type}</span>
         <span class="meta-tag">${q.auth}</span>
         <span class="meta-tag">${q.category}</span>`;
+      document.getElementById('progressBox').textContent =
+        `進度：第 ${Math.min(shuffledIndex + 1, currentPool.length)} / ${currentPool.length} 題`;
     }
     function applySimplify(text, deleteWords) {
       if (!simplified || !deleteWords || !deleteWords.length) return text;
@@ -464,6 +470,10 @@ function filterByCategory() {
           return;
         }
         const correct = selectedOption === q.answer;
+        if (!correct && !wrongList.includes(q.text)) {
+          wrongList.push(q.text);
+        }
+        saveProgress();
         document.getElementById('explanationBox').style.display = 'block';
         document.getElementById('explanationBox').innerHTML = (correct ? '✅ 答對！' : '❌ 答錯。') + ' ' + q.explanation;
         btn.textContent = '下一題';
@@ -476,6 +486,7 @@ function filterByCategory() {
         shuffledIndex++;
         renderQuestion();
         document.getElementById('promoArea').innerHTML = ''; // ✅ 清空宣傳
+        saveProgress();
       }
     }
     document.addEventListener('keydown', e => {
@@ -545,3 +556,20 @@ function showPromo() {
   </script>
 </body>
 </html>
+
+    function loadProgress() {
+      const saved = localStorage.getItem('toeicProgress');
+      if (!saved) return;
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed.wrongList)) wrongList = parsed.wrongList;
+        if (typeof parsed.shuffledIndex === 'number') shuffledIndex = parsed.shuffledIndex;
+      } catch {}
+    }
+
+    function saveProgress() {
+      localStorage.setItem('toeicProgress', JSON.stringify({
+        shuffledIndex,
+        wrongList
+      }));
+    }
