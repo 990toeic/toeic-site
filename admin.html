@@ -768,43 +768,45 @@
       textarea.focus();
     }
   </script>
-</body>
-  <script type="module">
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-    const auth = getAuth();
 
-    async function login() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-        if (user.email !== "johnnyice0109@gmail.com") {
-          alert("未授權帳號"); auth.signOut(); return;
-        }
+<script type="module">
+  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+  const auth = getAuth();
 
-        document.getElementById('loginBox').style.display = 'none';
-        document.getElementById('mainContent').style.display = '';
-
-        const token = await user.getIdToken();
-        const dbUrl = "https://toeic-990-johnny-default-rtdb.asia-southeast1.firebasedatabase.app/toeicData.json?auth=" + token;
-        const res = await fetch(dbUrl);
-        const data = await res.json();
-        if (!data) return;
-        questions = data.questions || [];
-        const promoRaw = data.promoList || [];
-        localStorage.setItem('toeicPromoList', JSON.stringify(promoRaw));
-        renderPromoEditor();
-        const settings = data.settings || {};
-        document.getElementById('pwStudent').value = settings.passwordStudent || '';
-        document.getElementById('pwFriend').value = settings.passwordFriend || '';
-        renderQuestions();
-
-        window.getFirebaseToken = () => token;
-      } catch (e) {
-        alert("登入失敗：" + e.message);
+  async function login() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      if (user.email !== "johnnyice0109@gmail.com") {
+        alert("未授權帳號"); auth.signOut(); return;
       }
+
+      document.getElementById('loginBox').style.display = 'none';
+      document.getElementById('mainContent').style.display = '';
+
+      const token = await user.getIdToken();
+      const dbUrl = "https://toeic-990-johnny-default-rtdb.asia-southeast1.firebasedatabase.app/toeicData.json?auth=" + token;
+      const res = await fetch(dbUrl);
+      const data = await res.json();
+      if (!data) return;
+      questions = data.questions || [];
+      const promoRaw = data.promoList || [];
+      localStorage.setItem('toeicPromoList', JSON.stringify(promoRaw));
+      renderPromoEditor();
+      const settings = data.settings || {};
+      document.getElementById('pwStudent').value = settings.passwordStudent || '';
+      document.getElementById('pwFriend').value = settings.passwordFriend || '';
+      renderQuestions();
+
+      window.getFirebaseToken = () => token;
+    } catch (e) {
+      alert("登入失敗：" + e.message);
     }
-    window.login = login;
-  </script>
+  }
+  window.login = login;
+</script>
+
+</body>
 </html>
