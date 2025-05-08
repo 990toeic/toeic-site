@@ -375,7 +375,18 @@
     }
     function filterByCategory() {
       const selected = document.getElementById('categoryFilter').value;
-      currentPool = selected ? allQuestions.filter(q => q.category === selected) : [...allQuestions];
+
+      currentPool = allQuestions.filter(q => {
+        const allow =
+          userLevel === '學員' ||
+          userLevel === '好友' ||
+          q.auth === '訪客'; // 權限過濾
+
+        const matchCategory = selected ? q.category === selected : true;
+
+        return allow && matchCategory;
+      });
+
       shuffleCurrentPool();
       renderQuestion();
     }
