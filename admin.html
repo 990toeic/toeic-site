@@ -327,31 +327,6 @@
   </div>
 
   <script>
-    // 登入功能
-    window.login = async function () {
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
-      if (!email || !password) {
-        alert("請輸入 Email 和密碼");
-        return;
-      }
-
-      try {
-        const auth = firebase.getAuth();
-        const userCredential = await firebase.signInWithEmailAndPassword(auth, email, password);
-        const token = await userCredential.user.getIdToken();
-        window.getFirebaseToken = () => token;
-
-        document.getElementById('loginBox').style.display = 'none';
-        document.getElementById('mainContent').style.display = '';
-        loadQuestions();
-        loadSettings();
-        renderQuestions();
-      } catch (error) {
-        alert("登入失敗：" + error.message);
-        console.error(error);
-      }
-    };
     let questions = [];
     let currentPage = 1;
     const questionsPerPage = 20;
@@ -448,12 +423,12 @@
           <div class="field-group" style="grid-column: span 2;">
             <label>解析：</label>
             <textarea id="${explanationId}" rows="3" style="flex:1" onchange="questions[${globalIndex}].explanation = this.value; saveQuestions()">${q.explanation}</textarea>
-            <button type="button" class="secondary" onclick="insertTooltipForm(this.previousElementSibling)">插入 Tooltip 範例</button>
+            <button type="button" class="secondary" onclick="insertTooltipAt(this.previousElementSibling)">插入 Tooltip 範例</button>
           </div>
           <div class="field-group" style="grid-column: span 2;">
             <label>提示：</label>
             <textarea id="${hintId}" rows="2" style="flex:1" onchange="questions[${globalIndex}].hint = this.value; saveQuestions()">${q.hint}</textarea>
-            <button type="button" class="secondary" onclick="insertTooltipForm(this.previousElementSibling)">插入 Tooltip 範例</button>
+            <button type="button" class="secondary" onclick="insertTooltipAt(this.previousElementSibling)">插入 Tooltip 範例</button>
           </div>
           <div class="field-group" style="grid-column: span 2;">
             <label>刪除文字：</label>
@@ -795,3 +770,42 @@
   </script>
 </body>
 </html>
+  </script>
+  <script type="module">
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+    const auth = getAuth();
+
+    async function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        if (user.email !== "johnnyice0109@gmail.com") {
+          alert("未授權帳號"); auth.signOut(); return;
+        }
+
+        document.getElementById('loginBox').style.display = 'none';
+        document.getElementById('mainContent').style.display = '';
+
+        const token = await user.getIdToken();
+        const dbUrl = "https://toeic-990-johnny-default-rtdb.asia-southeast1.firebasedatabase.app/toeicData.json?auth=" + token;
+        const res = await fetch(dbUrl);
+        const data = await res.json();
+        if (!data) return;
+        questions = data.questions || [];
+        const promoRaw = data.promoList || [];
+        localStorage.setItem('toeicPromoList', JSON.stringify(promoRaw));
+        renderPromoEditor();
+        const settings = data.settings || {};
+        document.getElementById('pwStudent').value = settings.passwordStudent || '';
+        document.getElementById('pwFriend').value = settings.passwordFriend || '';
+        renderQuestions();
+
+        window.getFirebaseToken = () => token;
+      } catch (e) {
+        alert("登入失敗：" + e.message);
+      }
+    }
+    window.login = login;
+  </script>
