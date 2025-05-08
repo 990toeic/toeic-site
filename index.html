@@ -58,6 +58,31 @@
       color: white;
       opacity: 0.8;
     }
+
+    /* 統一登入列風格 */
+    #loginRow input,
+    #loginRow select,
+    #loginRow span,
+    #loginRow label {
+      font-size: 14px;
+      color: #333;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    #loginRow select,
+    #loginRow input {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 6px 8px;
+      background: white;
+    }
+
+    #loginRow span#progressBox {
+      margin-left: auto;
+      font-size: 14px;
+      color: #666;
+    }
     .question-block {
       background: #ffffff;
       border-radius: 12px;
@@ -281,8 +306,8 @@
   <div id="loginRow" style="display: flex; align-items: center; gap: 10px; font-size: 14px; position: absolute; top: 10px; right: 20px;">
     <input type="password" id="passwordInput" placeholder="請輸入密碼" style="padding: 6px 8px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px;">
     <button onclick="handleLogin()" id="loginBtn" style="padding: 6px 10px; font-size: 14px; background-color: #5b9bd5; color: white; border: none; border-radius: 4px; cursor: pointer;">登入</button>
-    <span id="statusText"></span>
-    <label id="categoryRow" style="font-size: 13px; color: #666;">題目類別：</label>
+    <span id="statusText" style="font-size: 14px; color: #333; font-weight: 500;"></span>
+    <label id="categoryRow" style="font-size: 13px; color: #666;"></label>
     <select id="categoryFilter" onchange="filterByCategory()" style="padding: 4px 8px; font-size: 13px; border-radius: 4px; border: 1px solid #ccc; margin: 0;">
       <option value="">-- 全部主題 --</option>
     </select>
@@ -430,7 +455,7 @@ function filterByCategory() {
         <span class="meta-tag">${q.auth}</span>
         <span class="meta-tag">${q.category}</span>`;
       document.getElementById('progressBox').textContent =
-        `進度：第 ${Math.min(shuffledIndex + 1, currentPool.length)} / ${currentPool.length} 題`;
+        `第 ${Math.min(shuffledIndex + 1, currentPool.length)} / ${currentPool.length} 題`;
     }
     function applySimplify(text, deleteWords) {
       if (!simplified || !deleteWords || !deleteWords.length) return text;
@@ -510,7 +535,7 @@ function filterByCategory() {
           userLevel = '訪客';
         }
         pwInput.style.display = 'none';
-        status.textContent = `身份：${userLevel}`;
+        status.innerHTML = `<span style="font-weight:700; color:#333;">${userLevel}</span>`;
         btn.textContent = '登出';
         filterPool();
         renderCategoryOptions();
