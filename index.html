@@ -437,44 +437,51 @@ function filterByCategory() {
   shuffledIndex = 0;
   renderQuestion();
 }
-    function renderQuestion() {
-      simplified = false;
-      showHint = false;
-      selectedOption = '';
-      document.getElementById('hintBox').style.display = 'none';
-      document.getElementById('explanationBox').style.display = 'none';
-      document.getElementById('submitBtn').textContent = '送出';
-      if (!currentPool.length) {
-        document.getElementById('questionText').innerHTML = '⚠️ 題庫為空，請確認權限或匯入資料';
-        document.getElementById('options').innerHTML = '';
-        document.getElementById('tags').innerHTML = '';
-        document.getElementById('progressBox').textContent = '';
-        return;
-      }
-      // ✅ 修正 1：題目來源與進度來源錯誤
-      const q = shuffledPool[shuffledIndex];
-      document.getElementById('questionText').innerHTML = applySimplify(q.text, q.deleteWords);
-      const optionsDiv = document.getElementById('options');
-      optionsDiv.innerHTML = '';
-      const abcd = ['A', 'B', 'C', 'D'];
-      q.options.forEach((opt, idx) => {
-        const div = document.createElement('div');
-        div.className = 'option';
-        div.onclick = () => selectOption(abcd[idx]);
-        div.id = 'opt' + abcd[idx];
-        div.innerHTML = `<span class="circle"></span>${abcd[idx]}. ${opt}`;
-        optionsDiv.appendChild(div);
-      });
-      document.getElementById('tags').innerHTML = `
-        <span class="meta-tag">${q.freq}</span>
-        <span class="meta-tag">${q.level}</span>
-        <span class="meta-tag">${q.type}</span>
-        <span class="meta-tag">${q.auth}</span>
-        <span class="meta-tag">${q.category}</span>`;
-      // ✅ 修正 3：進度顯示以 shuffledPool 為主
-      document.getElementById('progressBox').textContent =
-        `第 ${Math.min(shuffledIndex + 1, shuffledPool.length)} / ${shuffledPool.length} 題`;
-    }
+function renderQuestion() {
+  // ✅ 若錯題已清空，退出錯題模式
+  if (wrongMode && wrongList.length === 0) {
+    alert("🎉 錯題已全部完成，已回到一般模式");
+    wrongMode = false;
+    document.getElementById('wrongModeBtn').textContent = '回顧錯題';
+    shuffledIndex = 0;
+    filterByCategory();
+    return;
+  }
+
+  simplified = false;
+  showHint = false;
+  selectedOption = '';
+  document.getElementById('hintBox').style.display = 'none';
+  document.getElementById('explanationBox').style.display = 'none';
+  document.getElementById('submitBtn').textContent = '送出';
+
+  if (!shuffledPool.length) {
+    alert('⚠️ 題庫為空，請確認登入權限或是否匯入資料');
+    return;
+  }
+
+  const q = shuffledPool[shuffledIndex];
+  document.getElementById('questionText').innerHTML = applySimplify(q.text, q.deleteWords);
+  const optionsDiv = document.getElementById('options');
+  optionsDiv.innerHTML = '';
+  const abcd = ['A', 'B', 'C', 'D'];
+  q.options.forEach((opt, idx) => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.onclick = () => selectOption(abcd[idx]);
+    div.id = 'opt' + abcd[idx];
+    div.innerHTML = `<span class="circle"></span>${abcd[idx]}. ${opt}`;
+    optionsDiv.appendChild(div);
+  });
+  document.getElementById('tags').innerHTML = `
+    <span class="meta-tag">${q.freq}</span>
+    <span class="meta-tag">${q.level}</span>
+    <span class="meta-tag">${q.type}</span>
+    <span class="meta-tag">${q.auth}</span>
+    <span class="meta-tag">${q.category}</span>`;
+  document.getElementById('progressBox').textContent =
+    `第 ${Math.min(shuffledIndex + 1, shuffledPool.length)} / ${shuffledPool.length} 題`;
+}
     function applySimplify(text, deleteWords) {
       if (!simplified || !deleteWords || !deleteWords.length) return text;
       let result = text;
@@ -665,20 +672,13 @@ function showPromo() {
 
 // 錯題模式切換功能
 function toggleWrongMode() {
-  wrongMode = !wrongMode;
-
-  const btn = document.getElementById('wrongModeBtn');
-  btn.textContent = wrongMode ? '繼續刷題' : '回顧錯題';
-
-  // 先確認有錯題，否則回到一般模式
-  if (wrongMode) {
-    if (!wrongList.length) {
-      alert('目前沒有錯題可練習');
-      wrongMode = false;
-      btn.textContent = '回顧錯題';
-      return;
-    }
+  if (!wrongMode && wrongList.length === 0) {
+    alert('目前沒有錯題可練習');
+    return;
   }
+
+  wrongMode = !wrongMode;
+  document.getElementById('wrongModeBtn').textContent = wrongMode ? '繼續刷題' : '回顧錯題';
 
   filterByCategory();
 }
