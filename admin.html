@@ -257,25 +257,12 @@
       <option value="訪客">訪客</option>
     </select>
     <label for="qCategory">主題分類</label>
-    <select id="qCategory">
-      <option value="">--請選擇文法主題--</option>
-      <option value="句子基本架構">句子基本架構</option>
-      <option value="主詞動詞一致性">主詞動詞一致性</option>
-      <option value="代名詞與格位用法">代名詞與格位用法</option>
-      <option value="名詞與形容詞搭配">名詞與形容詞搭配</option>
-      <option value="比較級與最高級">比較級與最高級</option>
-      <option value="介系詞的用法">介系詞的用法</option>
-      <option value="動詞種類與搭配">動詞種類與搭配</option>
-      <option value="動詞時態">動詞時態</option>
-      <option value="動名詞與不定詞">動名詞與不定詞</option>
-      <option value="子句與分詞構句">子句與分詞構句</option>
-      <option value="副詞與連接詞比較">副詞與連接詞比較</option>
-      <option value="動詞片語">動詞片語</option>
-      <option value="假設語氣與條件句">假設語氣與條件句</option>
-      <option value="倒裝與省略">倒裝與省略</option>
-      <option value="形容詞子句進階用法">形容詞子句進階用法</option>
-      <option value="特殊文法結構">特殊文法結構</option>
-    </select>
+    <select id="qCategory"></select>
+    <script>
+      const qCatSelect = document.getElementById('qCategory');
+      qCatSelect.innerHTML = '<option value="">--請選擇文法主題--</option>' +
+        categoryList.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+    </script>
     <button id="addBtn">新增題目</button>
   </div>
 
@@ -284,25 +271,12 @@
     <button onclick="downloadQuestions()">📤 匯出題庫</button>
     <input type="file" id="fileInput" accept=".json" />
     <button onclick="uploadQuestions()">📥 匯入題庫</button>
-    <select id="filterCategory" onchange="renderQuestions()">
-      <option value="">🔍 篩選主題（全部）</option>
-      <option value="句子基本架構">句子基本架構</option>
-      <option value="主詞動詞一致性">主詞動詞一致性</option>
-      <option value="代名詞與格位用法">代名詞與格位用法</option>
-      <option value="名詞與形容詞搭配">名詞與形容詞搭配</option>
-      <option value="比較級與最高級">比較級與最高級</option>
-      <option value="介系詞的用法">介系詞的用法</option>
-      <option value="動詞種類與搭配">動詞種類與搭配</option>
-      <option value="動詞時態">動詞時態</option>
-      <option value="動名詞與不定詞">動名詞與不定詞</option>
-      <option value="子句與分詞構句">子句與分詞構句</option>
-      <option value="副詞與連接詞比較">副詞與連接詞比較</option>
-      <option value="動詞片語">動詞片語</option>
-      <option value="假設語氣與條件句">假設語氣與條件句</option>
-      <option value="倒裝與省略">倒裝與省略</option>
-      <option value="形容詞子句進階用法">形容詞子句進階用法</option>
-      <option value="特殊文法結構">特殊文法結構</option>
-    </select>
+    <select id="filterCategory" onchange="renderQuestions()"></select>
+    <script>
+      const filterSelect = document.getElementById('filterCategory');
+      filterSelect.innerHTML = '<option value="">🔍 篩選主題（全部）</option>' +
+        categoryList.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+    </script>
   </div>
 
   <div class="section">
@@ -333,6 +307,14 @@
   </div>
 
   <script>
+
+const categoryList = [
+  "句子基本架構", "主詞動詞一致性", "代名詞與格位用法", "名詞與形容詞搭配",
+  "比較級與最高級", "介系詞的用法", "動詞種類與搭配", "動詞時態",
+  "動名詞與不定詞", "子句與分詞構句", "副詞與連接詞比較", "動詞片語",
+  "假設語氣與條件句", "倒裝與省略", "形容詞子句進階用法", "特殊文法結構"
+];
+
     let questions = [];
     let currentPage = 1;
     const questionsPerPage = 20;
@@ -473,14 +455,9 @@
           </div>
           <div class="field-group" style="grid-column: span 2;">
             <label>主題分類：</label>
-            <select style="flex:1" onchange="questions[${globalIndex}].category = this.value; saveQuestions()">
-              ${[
-                "句子基本架構","主詞動詞一致性","代名詞與格位用法","名詞與形容詞搭配",
-                "比較級與最高級","介系詞的用法","動詞種類與搭配","動詞時態",
-                "動名詞與不定詞","子句與分詞構句","副詞與連接詞比較","動詞片語",
-                "假設語氣與條件句","倒裝與省略","形容詞子句進階用法","特殊文法結構"
-              ].map(cat => `<option ${q.category === cat ? 'selected' : ''}>${cat}</option>`).join('')}
-            </select>
+<select style="flex:1" onchange="questions[${globalIndex}].category = this.value; saveQuestions()">
+  ${categoryList.map(cat => `<option ${q.category === cat ? 'selected' : ''}>${cat}</option>`).join('')}
+</select>
           </div>
         `;
 
