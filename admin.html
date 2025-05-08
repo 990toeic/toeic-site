@@ -750,6 +750,25 @@
           body: JSON.stringify(dataToSave)
         });
 
+        // 新增三個 fetch 請求分別寫入 questions/settings/promoList
+        await fetch("https://toeic-990-johnny-default-rtdb.asia-southeast1.firebasedatabase.app/toeicQuestions.json?auth=" + token, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(questions)
+        });
+
+        await fetch("https://toeic-990-johnny-default-rtdb.asia-southeast1.firebasedatabase.app/settings.json?auth=" + token, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(settings)
+        });
+
+        await fetch("https://toeic-990-johnny-default-rtdb.asia-southeast1.firebasedatabase.app/promoList.json?auth=" + token, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(promoList)
+        });
+
         if (response.ok) {
           alert("✅ 所有資料已成功儲存到 Firebase！");
         } else {
