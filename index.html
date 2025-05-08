@@ -384,7 +384,7 @@
       const q = currentPool[currentQuestionIndex];
       showHint = !showHint;
       box.style.display = showHint ? 'block' : 'none';
-      box.textContent = showHint ? q.hint : '';
+      box.innerHTML = showHint ? q.hint : '';
     }
     function selectOption(letter) {
       selectedOption = letter;
@@ -406,7 +406,7 @@
         }
         const correct = selectedOption === q.answer;
         document.getElementById('explanationBox').style.display = 'block';
-        document.getElementById('explanationBox').textContent = (correct ? '✅ 答對！' : '❌ 答錯。') + ' ' + q.explanation;
+        document.getElementById('explanationBox').innerHTML = (correct ? '✅ 答對！' : '❌ 答錯。') + ' ' + q.explanation;
         btn.textContent = '下一題';
         showPromo(); // ✅ 顯示宣傳
       } else {
