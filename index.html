@@ -289,6 +289,7 @@
 
           // localStorage.setItem('toeicSettings', JSON.stringify(settings));
           localStorage.setItem('toeicPromoList', JSON.stringify(promoListRaw));
+          loadPromoList();
 
           pwFriend = settings.passwordFriend || '';
           pwStudent = settings.passwordStudent || '';
@@ -477,8 +478,6 @@ function showPromo() {
 // (已更新於上方)
 
 
-// 初始化時記得載入宣傳清單
-loadPromoList();
 
   </script>
 </body>
