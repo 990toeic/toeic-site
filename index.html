@@ -290,6 +290,7 @@
       <option value="">-- 全部主題 --</option>
     </select>
   </div>
+  <div id="progressBox" style="text-align:center; font-size:12px; color:#aaa; margin:12px auto 4px auto; max-width: 720px;"></div>
   <div class="question-block">
     <div class="question-text" id="questionText"></div>
     <div id="options"></div>
@@ -304,7 +305,7 @@
     <div class="hint-box" id="hintBox" style="display:none;"></div>
     <div class="explanation-box" id="explanationBox" style="display:none;"></div>
   </div>
-  <div id="progressBox" style="text-align:center; font-size:12px; color:#aaa; margin:12px 0;"></div>
+  
   <div id="promoArea"></div>
   <script>
     let allQuestions = [];
@@ -573,20 +574,3 @@ function showPromo() {
   </script>
 </body>
 </html>
-
-    function loadProgress() {
-      const saved = localStorage.getItem('toeicProgress');
-      if (!saved) return;
-      try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed.wrongList)) wrongList = parsed.wrongList;
-        if (typeof parsed.shuffledIndex === 'number') shuffledIndex = parsed.shuffledIndex;
-      } catch {}
-    }
-
-    function saveProgress() {
-      localStorage.setItem('toeicProgress', JSON.stringify({
-        shuffledIndex,
-        wrongList
-      }));
-    }
