@@ -368,7 +368,7 @@
     function filterByCategory() {
       const selected = document.getElementById('categoryFilter').value;
       currentPool = selected ? allQuestions.filter(q => q.category === selected) : [...allQuestions];
-      currentQuestionIndex = Math.floor(Math.random() * currentPool.length);
+      shuffleCurrentPool();
       renderQuestion();
     }
     function renderQuestion() {
