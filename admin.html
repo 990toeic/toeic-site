@@ -194,14 +194,7 @@
   </script>
 </head>
 <body>
-  <style>
-    body.locked *:not(#loginBox) {
-      display: none !important;
-    }
-  </style>
-  <script>
-    document.body.classList.add('locked');
-  </script>
+  <div id="mainContent" style="display:none">
   <div id="loginBox">
     <h2>後台登入</h2>
     <input id="email" type="text" placeholder="Email" />
@@ -328,6 +321,8 @@
   <h3>🔍 預覽區</h3>
   <div id="promoPreview"></div>
 </div>
+
+  </div>
 
   <script>
     let questions = [];
@@ -745,7 +740,7 @@
         }
 
         document.getElementById('loginBox').style.display = 'none';
-        document.body.classList.remove('locked');
+        document.getElementById('mainContent').style.display = '';
 
         const token = await user.getIdToken();
         const dbUrl = "https://toeic-990-johnny-default-rtdb.asia-southeast1.firebasedatabase.app/toeicData.json?auth=" + token;
