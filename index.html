@@ -496,12 +496,12 @@ function renderQuestion() {
     }
     function toggleSimplify() {
       simplified = !simplified;
-      const q = currentPool[currentQuestionIndex];
+      const q = shuffledPool[shuffledIndex];
       document.getElementById('questionText').innerHTML = applySimplify(q.text, q.deleteWords);
     }
     function toggleHint() {
       const box = document.getElementById('hintBox');
-      const q = currentPool[currentQuestionIndex];
+      const q = shuffledPool[shuffledIndex];
       showHint = !showHint;
       box.style.display = showHint ? 'block' : 'none';
       box.innerHTML = showHint ? q.hint : '';
