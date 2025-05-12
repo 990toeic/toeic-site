@@ -214,7 +214,6 @@
     <label>第一組密碼（好友）：<input type="text" id="pwFriend" placeholder="friend456"></label>
     <label>第二組密碼（學員）：<input type="text" id="pwStudent" placeholder="student123"></label>
     <button onclick="saveSettings()">儲存密碼設定</button>
-    <button onclick="saveAllToFirebase()">💾 儲存所有變更</button>
   </div>
 
   <div class="section">
@@ -277,20 +276,94 @@
       filterSelect.innerHTML = '<option value="">🔍 篩選主題（全部）</option>' +
         categoryList.map(cat => `<option value="${cat}">${cat}</option>`).join('');
     </script>
+    <button id="toggleViewModeBtn" style="margin-left:10px;">📦 切換為表格模式</button>
   </div>
 
   <div class="section">
+    <h2>批次套用標籤（依題號）</h2>
+    <div class="field-group">
+      <label>起始題號：</label>
+      <input id="batchStart" type="number" min="1" />
+    </div>
+    <div class="field-group">
+      <label>結束題號：</label>
+      <input id="batchEnd" type="number" min="1" />
+    </div>
+    <div class="field-group">
+      <label>頻率：</label>
+      <select id="batchFreq">
+        <option value="">-- 不變更 --</option>
+        <option value="高頻">高頻</option>
+        <option value="普通">普通</option>
+        <option value="低頻">低頻</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label>難度：</label>
+      <select id="batchLevel">
+        <option value="">-- 不變更 --</option>
+        <option value="進階">進階</option>
+        <option value="普通">普通</option>
+        <option value="簡單">簡單</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label>類型：</label>
+      <select id="batchType">
+        <option value="">-- 不變更 --</option>
+        <option value="真題">真題</option>
+        <option value="題庫">題庫</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label>權限：</label>
+      <select id="batchAuth">
+        <option value="">-- 不變更 --</option>
+        <option value="學員">學員</option>
+        <option value="好友">好友</option>
+        <option value="訪客">訪客</option>
+      </select>
+    </div>
+    <button onclick="applyBatchLabels()">📦 套用標籤至指定題目</button>
+  </div>
+  <script>
+
+    // 批次套用標籤功能
+    function applyBatchLabels() {
+      const start = parseInt(document.getElementById('batchStart').value) - 1;
+      const end = parseInt(document.getElementById('batchEnd').value) - 1;
+
+      if (isNaN(start) || isNaN(end) || start < 0 || end < start || end >= questions.length) {
+        alert("請輸入有效的題號範圍");
+        return;
+      }
+
+      const freq = document.getElementById('batchFreq').value;
+      const level = document.getElementById('batchLevel').value;
+      const type = document.getElementById('batchType').value;
+      const auth = document.getElementById('batchAuth').value;
+
+      for (let i = start; i <= end; i++) {
+        if (freq) questions[i].freq = freq;
+        if (level) questions[i].level = level;
+        if (type) questions[i].type = type;
+        if (auth) questions[i].auth = auth;
+      }
+
+      saveQuestions();
+      renderQuestions();
+      alert("✅ 標籤套用成功！");
+    }
+</script>
+
+  <div class="section alwaysVisible">
     <h2>現有題目</h2>
     <div style="text-align:right; margin-bottom:8px;">
-      <button onclick="toggleAllQuestions(true)">全部展開</button>
-      <button onclick="toggleAllQuestions(false)">全部收合</button>
       <button onclick="clearAllQuestions()" style="background-color: darkred; color: white; margin-left: 10px;">🧹 清空全部題目</button>
     </div>
     <div id="questionList"></div>
     <div id="pagination" style="margin-top: 20px; text-align: center;"></div>
   </div>
-
-<br>
 
 <div class="section">
   <h2>宣傳內容管理（多組 / 支援 HTML）</h2>
@@ -337,6 +410,11 @@ const categoryList = [
       list.innerHTML = '';
       pagination.innerHTML = '';
 
+      // 若為表格模式，改用 renderTableMode
+      if (window.isTableMode) {
+        renderTableMode();
+        return;
+      }
       // 篩選後的題目
       const filtered = questions.filter(q => !filter || q.category === filter);
       const totalPages = Math.ceil(filtered.length / questionsPerPage);
@@ -366,7 +444,12 @@ const categoryList = [
         rightBtns.style.gap = '6px';
 
         const toggleBtn = document.createElement('button');
-        toggleBtn.textContent = '🔽 收合';
+        // 展開/收合按鈕顯示
+        let isExpanded = false;
+        if (typeof window.lastAddedIndex === 'number' && globalIndex === window.lastAddedIndex - 1) {
+          isExpanded = true;
+        }
+        toggleBtn.textContent = isExpanded ? '🔽 收合' : '🔼 展開';
         toggleBtn.onclick = () => {
           const form = block.querySelector('.question-form');
           const isHidden = form.style.display === 'none';
@@ -390,6 +473,13 @@ const categoryList = [
         // 題目內容區（可收合）
         const formDiv = document.createElement('div');
         formDiv.className = 'question-form';
+
+        // 是否預設展開
+        if (typeof window.lastAddedIndex === 'number' && globalIndex === window.lastAddedIndex - 1) {
+          formDiv.style.display = '';
+        } else {
+          formDiv.style.display = 'none';
+        }
 
         // 解析 textarea + 插入 Tooltip 按鈕
         const explanationId = `explanation-${globalIndex}`;
@@ -479,6 +569,122 @@ const categoryList = [
       }
     }
 
+    // 表格編輯模式
+    function renderTableMode() {
+      const container = document.getElementById('questionList');
+      const pagination = document.getElementById('pagination');
+      container.innerHTML = '';
+      pagination.innerHTML = '';
+
+      const table = document.createElement('table');
+      table.style.width = '100%';
+      table.style.borderCollapse = 'collapse';
+      table.innerHTML = `
+        <thead>
+          <tr style="background:#f1f5f9;">
+            <th style="min-width:40px;">#</th>
+            <th style="min-width:60px;">答案</th>
+            <th style="min-width:180px;">解析</th>
+            <th style="min-width:180px;">提示</th>
+            <th style="min-width:100px;">分類</th>
+            <th style="min-width:100px;">頻率</th>
+            <th style="min-width:100px;">難度</th>
+            <th style="min-width:100px;">類型</th>
+            <th style="min-width:100px;">權限</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
+
+      const tbody = table.querySelector('tbody');
+
+      questions.forEach((q, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="padding:4px;">Q${idx + 1}</td>
+          <td>
+            <select style="min-width:60px;">
+              ${['A','B','C','D'].map(opt => `<option ${q.answer === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+            </select>
+          </td>
+          <td>
+            <textarea rows="2" style="min-width:180px;">${q.explanation || ''}</textarea>
+          </td>
+          <td>
+            <textarea rows="2" style="min-width:180px;">${q.hint || ''}</textarea>
+          </td>
+          <td>
+            <select style="min-width:100px;">
+              ${categoryList.map(cat => `<option ${q.category === cat ? 'selected' : ''}>${cat}</option>`).join('')}
+            </select>
+          </td>
+          <td>
+            <select style="min-width:100px;">
+              <option ${q.freq==='高頻'?'selected':''}>高頻</option>
+              <option ${q.freq==='普通'?'selected':''}>普通</option>
+              <option ${q.freq==='低頻'?'selected':''}>低頻</option>
+            </select>
+          </td>
+          <td>
+            <select style="min-width:100px;">
+              <option ${q.level==='進階'?'selected':''}>進階</option>
+              <option ${q.level==='普通'?'selected':''}>普通</option>
+              <option ${q.level==='簡單'?'selected':''}>簡單</option>
+            </select>
+          </td>
+          <td>
+            <select style="min-width:100px;">
+              <option ${q.type==='真題'?'selected':''}>真題</option>
+              <option ${q.type==='題庫'?'selected':''}>題庫</option>
+            </select>
+          </td>
+          <td>
+            <select style="min-width:100px;">
+              <option ${q.auth==='學員'?'selected':''}>學員</option>
+              <option ${q.auth==='好友'?'selected':''}>好友</option>
+              <option ${q.auth==='訪客'?'selected':''}>訪客</option>
+            </select>
+          </td>
+        `;
+
+        // 順序: 答案、解析、提示、分類、頻率、難度、類型、權限
+        const selectsAndTextareas = tr.querySelectorAll('select, textarea');
+        const [
+          answerSel, // 0
+          explInput, // 1
+          hintInput, // 2
+          catSel,    // 3
+          freqSel,   // 4
+          levelSel,  // 5
+          typeSel,   // 6
+          authSel    // 7
+        ] = selectsAndTextareas;
+        answerSel.onchange = () => { q.answer = answerSel.value; saveQuestions(); };
+        explInput.onchange = () => { q.explanation = explInput.value; saveQuestions(); };
+        hintInput.onchange = () => { q.hint = hintInput.value; saveQuestions(); };
+        catSel.onchange = () => { q.category = catSel.value; saveQuestions(); };
+        freqSel.onchange = () => { q.freq = freqSel.value; saveQuestions(); };
+        levelSel.onchange = () => { q.level = levelSel.value; saveQuestions(); };
+        typeSel.onchange = () => { q.type = typeSel.value; saveQuestions(); };
+        authSel.onchange = () => { q.auth = authSel.value; saveQuestions(); };
+
+        tbody.appendChild(tr);
+      });
+
+      container.appendChild(table);
+    }
+    // 模式切換
+    window.isTableMode = false;
+    document.getElementById('toggleViewModeBtn').onclick = () => {
+      window.isTableMode = !window.isTableMode;
+      document.getElementById('toggleViewModeBtn').textContent = window.isTableMode ? '🗂 切換為卡片模式' : '📦 切換為表格模式';
+      if (window.isTableMode) {
+        renderTableMode();
+      } else {
+        renderQuestions();
+      }
+    };
+
     function addQuestion() {
       const qText = document.getElementById('qText').value.trim();
       const qOptions = document.getElementById('qOptions').value.split(',').map(x => x.trim());
@@ -500,6 +706,7 @@ const categoryList = [
         category: document.getElementById('qCategory').value
       };
       questions.push(q);
+      window.lastAddedIndex = questions.length;
       saveQuestions(); renderQuestions();
       document.querySelectorAll('#qText, #qOptions, #qAnswer, #qExplanation, #qHint, #qDeleteWords').forEach(e => e.value = '');
       ['qFreq','qLevel','qType','qAuth','qCategory'].forEach(id => document.getElementById(id).selectedIndex = 0);
@@ -565,17 +772,7 @@ const categoryList = [
     document.getElementById('addBtn').addEventListener('click', addQuestion);
     // Firebase 載入後會自動 renderQuestions()
 
-    // 全部展開/收合功能
-    function toggleAllQuestions(expand) {
-      document.querySelectorAll('.question-form').forEach(form => {
-        form.style.display = expand ? '' : 'none';
-      });
-      document.querySelectorAll('.question-block button').forEach(btn => {
-        if (btn.textContent.includes('收合') || btn.textContent.includes('展開')) {
-          btn.textContent = expand ? '🔽 收合' : '🔼 展開';
-        }
-      });
-    }
+    // 全部展開/收合功能已移除，避免與整體收合設計重複
 
     // 清空全部題目
     function clearAllQuestions() {
@@ -719,6 +916,15 @@ const categoryList = [
       const form = document.createElement('div');
       form.className = 'tooltip-form';
       form.innerHTML = `
+        <label>選擇提示模板
+          <select class="tooltip-template">
+            <option value="">-- 自行輸入或選擇模板 --</option>
+            <option value="現在式|現在式|https://yourlink.com/present">現在式</option>
+            <option value="過去式|過去式|https://yourlink.com/past">過去式</option>
+            <option value="句型1|句型1|https://yourlink.com/pattern1">句型 1</option>
+            <option value="受詞子句|that 子句|">that 子句（無連結）</option>
+          </select>
+        </label>
         <label>提示內容 <input type="text" class="tooltip-tip"></label>
         <label>顯示文字 <input type="text" class="tooltip-show"></label>
         <label>超連結網址（可留空）<input type="text" class="tooltip-link"></label>
@@ -727,6 +933,16 @@ const categoryList = [
           <button type="button" onclick="this.closest('.tooltip-form').remove()">取消</button>
         </div>
       `;
+      // 模板選單邏輯
+      const templateSelect = form.querySelector('.tooltip-template');
+      templateSelect.addEventListener('change', e => {
+        const val = e.target.value;
+        if (!val) return;
+        const [tip, show, link] = val.split('|');
+        form.querySelector('.tooltip-tip').value = tip || '';
+        form.querySelector('.tooltip-show').value = show || '';
+        form.querySelector('.tooltip-link').value = link || '';
+      });
       textarea.insertAdjacentElement('afterend', form);
     }
 
@@ -800,4 +1016,31 @@ const categoryList = [
 </script>
 
 </body>
+<!-- 浮動儲存全部變更按鈕 -->
+<div id="floatingSave" style="position:fixed; bottom:20px; right:20px; z-index:9999;">
+  <button onclick="saveAllToFirebase()">💾 儲存所有變更</button>
+</div>
+<script>
+  document.querySelectorAll('.section').forEach((section, idx) => {
+    const id = `section-${idx + 1}`;
+    section.setAttribute('data-section-id', id);
+
+    const toggleBtn = document.createElement('button');
+    section.classList.add('collapsed');
+    const isCollapsed = section.classList.contains('collapsed');
+    toggleBtn.textContent = isCollapsed ? '🔽 展開' : '🔼 收合';
+    toggleBtn.style.marginBottom = '10px';
+    toggleBtn.style.float = 'right';
+    toggleBtn.onclick = () => {
+      const isNowCollapsed = section.classList.toggle('collapsed');
+      toggleBtn.textContent = isNowCollapsed ? '🔽 展開' : '🔼 收合';
+    };
+
+    section.insertBefore(toggleBtn, section.firstElementChild);
+  });
+
+  const style = document.createElement('style');
+  style.textContent = `.section.collapsed > *:not(button):not(h2) { display: none !important; }`;
+  document.head.appendChild(style);
+</script>
 </html>
