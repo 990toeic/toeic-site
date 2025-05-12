@@ -708,20 +708,17 @@ function toggleWrongMode() {
 
 
 
-  </script>
-</body>
-</html>
-
-// --- 分類同步功能 (for backend/admin use) ---
-// 假設後台分類列表變數為 categoryList，題目陣列為 questions
-// 每次更新分類列表後呼叫 syncCategoriesAcrossQuestions()，再 saveQuestions()
+// 分類同步功能 (for backend/admin use)
 function syncCategoriesAcrossQuestions() {
-  // categoryList 與 questions 需於後台全域定義
   if (typeof categoryList === 'undefined' || typeof questions === 'undefined') return;
   const existingCategories = new Set(categoryList);
   questions.forEach(q => {
     if (!existingCategories.has(q.category)) {
-      q.category = ""; // 清空不存在的分類
+      q.category = "";
     }
   });
 }
+
+</script>
+</body>
+</html>
