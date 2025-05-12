@@ -556,12 +556,13 @@ function submitAnswer() {
     btn.textContent = '下一題';
     showPromo();
   } else {
-    // ✅ 新增錯題完成檢查邏輯，移到這裡
+    // ✅ 錯題完成檢查邏輯只保留在 else 區塊
     if (wrongMode && wrongList.length === 0) {
       alert("🎉 錯題已全部完成，已回到一般模式");
       wrongMode = false;
       document.getElementById('wrongModeBtn').textContent = '回顧錯題';
       filterByCategory();
+      saveProgress();
       return;
     }
     // 切換進度記錄
@@ -579,9 +580,7 @@ function submitAnswer() {
           alert("🎉 錯題已全部完成，已回到一般模式");
           wrongMode = false;
           document.getElementById('wrongModeBtn').textContent = '回顧錯題';
-          shuffledIndex = 0;
           filterByCategory();
-          renderQuestion();
           saveProgress();
           return;
         } else {
