@@ -354,6 +354,8 @@
     let wrongMode = false;
     let generalIndex = 0;
     let wrongIndex = 0;
+    // 全域 categoryList
+    let categoryList = [];
     function loadQuestions() {
       fetch('https://toeic-990-johnny-default-rtdb.asia-southeast1.firebasedatabase.app/toeicData.json')
         .then(res => res.json())
@@ -361,6 +363,8 @@
           allQuestions = data.questions || [];
           const settings = data.settings || {};
           const promoListRaw = data.promoList || [];
+          // 支援 categoryList 從 firebase
+          categoryList = data.categoryList || [];
 
           // localStorage.setItem('toeicSettings', JSON.stringify(settings));
           localStorage.setItem('toeicPromoList', JSON.stringify(promoListRaw));
@@ -394,9 +398,12 @@
     }
     function renderCategoryOptions() {
       const select = document.getElementById('categoryFilter');
+      // 先清空
       select.innerHTML = '<option value="">-- 全部主題 --</option>';
-      // 排序並去除重複分類
-      const categories = [...new Set(allQuestions.map(q => q.category))].filter(Boolean).sort();
+      // 支援合併 firebase categoryList，並去除前後空白
+      const dataCategories = allQuestions.map(q => q.category?.trim()).filter(Boolean);
+      const customCategories = (typeof categoryList !== 'undefined') ? categoryList.map(c => c.trim()) : [];
+      const categories = [...new Set([...dataCategories, ...customCategories])].filter(Boolean).sort();
       categories.forEach(cat => {
         const opt = document.createElement('option');
         opt.value = cat;

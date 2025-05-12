@@ -257,11 +257,6 @@
     </select>
     <label for="qCategory">主題分類</label>
     <select id="qCategory"></select>
-    <script>
-      const qCatSelect = document.getElementById('qCategory');
-      qCatSelect.innerHTML = '<option value="">--請選擇文法主題--</option>' +
-        categoryList.map(cat => `<option value="${cat}">${cat}</option>`).join('');
-    </script>
     <button id="addBtn">新增題目</button>
   </div>
 
@@ -271,11 +266,6 @@
     <input type="file" id="fileInput" accept=".json" />
     <button onclick="uploadQuestions()">📥 匯入題庫</button>
     <select id="filterCategory" onchange="renderQuestions()"></select>
-    <script>
-      const filterSelect = document.getElementById('filterCategory');
-      filterSelect.innerHTML = '<option value="">🔍 篩選主題（全部）</option>' +
-        categoryList.map(cat => `<option value="${cat}">${cat}</option>`).join('');
-    </script>
     <button id="toggleViewModeBtn" style="margin-left:10px;">📦 切換為表格模式</button>
   </div>
 
@@ -391,12 +381,7 @@
 
   <script>
 
-let categoryList = [
-  "句子基本架構1", "主詞動詞一致性", "代名詞與格位用法", "名詞與形容詞搭配",
-  "比較級與最高級", "介系詞的用法", "動詞種類與搭配", "動詞時態",
-  "動名詞與不定詞", "子句與分詞構句", "副詞與連接詞比較", "動詞片語",
-  "假設語氣與條件句", "倒裝與省略", "形容詞子句進階用法", "特殊文法結構"
-];
+let categoryList = [];
 // 主題分類管理功能
 function renderCategoryList() {
   const ul = document.getElementById('categoryList');
@@ -447,9 +432,7 @@ function refreshCategorySelects() {
   // 更新所有使用 categoryList 的 select 元件
   const categoryHTML = '<option value="">--請選擇文法主題--</option>' +
     categoryList.map(cat => `<option value="${cat}">${cat}</option>`).join('');
-  document.getElementById('qCategory').innerHTML = '';
   document.getElementById('qCategory').innerHTML = categoryHTML;
-  document.getElementById('filterCategory').innerHTML = '';
   document.getElementById('filterCategory').innerHTML = '<option value="">🔍 篩選主題（全部）</option>' +
     categoryList.map(cat => `<option value="${cat}">${cat}</option>`).join('');
   renderQuestions(); // 重新渲染題目區
