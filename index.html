@@ -446,16 +446,36 @@ function filterByCategory() {
   shuffledIndex = 0;
   renderQuestion();
 }
-function renderQuestion() {
-  // ✅ 若錯題已清空，退出錯題模式
-  if (wrongMode && wrongList.length === 0) {
+function checkWrongModeDone() {
+  if (!wrongMode) return;
+
+  const selected = document.getElementById('categoryFilter').value;
+  const remaining = allQuestions
+    .filter(q => wrongList.includes(q.text))
+    .filter(q => {
+      const matchCategory = selected ? q.category === selected : true;
+      const allow =
+        userLevel === '學員' ||
+        userLevel === '好友' ||
+        q.auth === '訪客';
+      return matchCategory && allow;
+    });
+
+  if (remaining.length === 0) {
     alert("🎉 錯題已全部完成，已回到一般模式");
     wrongMode = false;
     document.getElementById('wrongModeBtn').textContent = '回顧錯題';
-    shuffledIndex = 0;
     filterByCategory();
-    return;
+    saveProgress();
+    return true;
   }
+
+  return false;
+}
+
+function renderQuestion() {
+  // ✅ 若錯題已清空，退出錯題模式
+  if (checkWrongModeDone()) return;
 
   simplified = false;
   showHint = false;
@@ -557,14 +577,7 @@ function submitAnswer() {
     showPromo();
   } else {
     // ✅ 錯題完成檢查邏輯只保留在 else 區塊
-    if (wrongMode && wrongList.length === 0) {
-      alert("🎉 錯題已全部完成，已回到一般模式");
-      wrongMode = false;
-      document.getElementById('wrongModeBtn').textContent = '回顧錯題';
-      filterByCategory();
-      saveProgress();
-      return;
-    }
+    if (checkWrongModeDone()) return;
     // 切換進度記錄
     if (wrongMode) {
       wrongIndex = shuffledIndex;
@@ -575,16 +588,8 @@ function submitAnswer() {
     // 下一題
     shuffledIndex++;
     if (shuffledIndex >= shuffledPool.length) {
+      if (checkWrongModeDone()) return;
       if (wrongMode) {
-        if (wrongList.length === 0) {
-          alert("🎉 錯題已全部完成，已回到一般模式");
-          wrongMode = false;
-          document.getElementById('wrongModeBtn').textContent = '回顧錯題';
-          filterByCategory();
-          saveProgress();
-          return;
-        }
-
         // 重建錯題 pool 前再次檢查篩選結果
         shuffledPool = allQuestions
           .filter(q => wrongList.includes(q.text))
@@ -599,12 +604,7 @@ function submitAnswer() {
           });
 
         if (shuffledPool.length === 0) {
-          alert("🎉 錯題已全部完成，已回到一般模式");
-          wrongMode = false;
-          document.getElementById('wrongModeBtn').textContent = '回顧錯題';
-          filterByCategory();
-          saveProgress();
-          return;
+          if (checkWrongModeDone()) return;
         }
 
         shuffleCurrentPool();
