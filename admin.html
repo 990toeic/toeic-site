@@ -316,10 +316,7 @@
     </div>
     <div class="field-group">
       <label>分類：</label>
-      <select id="batchCategory">
-        <option value="">-- 不變更 --</option>
-        ${categoryList.map(cat => `<option value="${cat}">${cat}</option>`).join('')}
-      </select>
+      <select id="batchCategory"></select>
     </div>
     <button onclick="applyBatchLabels()">📦 套用標籤至指定題目</button>
   </div>
@@ -445,6 +442,9 @@ function refreshCategorySelects() {
   document.getElementById('filterCategory').innerHTML = '<option value="">🔍 篩選主題（全部）</option>' +
     categoryList.map(cat => `<option value="${cat}">${cat}</option>`).join('');
   renderQuestions(); // 重新渲染題目區
+  // 更新批次分類選單
+  document.getElementById('batchCategory').innerHTML = '<option value="">-- 不變更 --</option>' +
+    categoryList.map(cat => `<option value="${cat}">${cat}</option>`).join('');
 }
 
 window.addEventListener('DOMContentLoaded', renderCategoryList);
