@@ -590,7 +590,7 @@ function submitAnswer() {
     if (shuffledIndex >= shuffledPool.length) {
       if (checkWrongModeDone()) return;
       if (wrongMode) {
-        // 重建錯題 pool 前再次檢查篩選結果
+        // 重建錯題 pool（套用分類與權限條件）
         shuffledPool = allQuestions
           .filter(q => wrongList.includes(q.text))
           .filter(q => {
@@ -607,7 +607,11 @@ function submitAnswer() {
           if (checkWrongModeDone()) return;
         }
 
-        shuffleCurrentPool();
+        // 直接打亂 shuffledPool，不再用 currentPool
+        for (let i = shuffledPool.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffledPool[i], shuffledPool[j]] = [shuffledPool[j], shuffledPool[i]];
+        }
         shuffledIndex = 0;
       } else {
         // 一般模式：正常洗牌
