@@ -536,6 +536,15 @@ function submitAnswer() {
     // 錯題模式下，答對才移除該題
     if (correct && wrongMode && wrongList.includes(q.text)) {
       wrongList = wrongList.filter(t => t !== q.text);
+
+      // ⬇️ 若錯題清空且已到最後一題，立即退出錯題模式
+      if (wrongList.length === 0 && shuffledIndex >= shuffledPool.length - 1) {
+        alert("🎉 錯題全部完成，已回到一般模式");
+        wrongMode = false;
+        document.getElementById('wrongModeBtn').textContent = '回顧錯題';
+        filterByCategory();
+        return;
+      }
     }
 
     saveProgress();
@@ -549,7 +558,7 @@ function submitAnswer() {
   } else {
     // ✅ 新增錯題完成檢查邏輯
     if (wrongMode && wrongList.length === 0) {
-      alert("🎉 錯題全部完成，已自動切換回一般模式");
+      alert("🎉 錯題已全部完成，已回到一般模式");
       wrongMode = false;
       document.getElementById('wrongModeBtn').textContent = '回顧錯題';
       filterByCategory();
