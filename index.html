@@ -583,22 +583,32 @@ function submitAnswer() {
           filterByCategory();
           saveProgress();
           return;
-        } else {
-          // 還有錯題，重建 shuffledPool
-          shuffledPool = allQuestions
-            .filter(q => wrongList.includes(q.text))
-            .filter(q => {
-              const selected = document.getElementById('categoryFilter').value;
-              const allow =
-                userLevel === '學員' ||
-                userLevel === '好友' ||
-                q.auth === '訪客';
-              const matchCategory = selected ? q.category === selected : true;
-              return allow && matchCategory;
-            });
-          shuffleCurrentPool();
-          shuffledIndex = 0;
         }
+
+        // 重建錯題 pool 前再次檢查篩選結果
+        shuffledPool = allQuestions
+          .filter(q => wrongList.includes(q.text))
+          .filter(q => {
+            const selected = document.getElementById('categoryFilter').value;
+            const allow =
+              userLevel === '學員' ||
+              userLevel === '好友' ||
+              q.auth === '訪客';
+            const matchCategory = selected ? q.category === selected : true;
+            return allow && matchCategory;
+          });
+
+        if (shuffledPool.length === 0) {
+          alert("🎉 錯題已全部完成，已回到一般模式");
+          wrongMode = false;
+          document.getElementById('wrongModeBtn').textContent = '回顧錯題';
+          filterByCategory();
+          saveProgress();
+          return;
+        }
+
+        shuffleCurrentPool();
+        shuffledIndex = 0;
       } else {
         // 一般模式：正常洗牌
         shuffleCurrentPool();
