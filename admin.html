@@ -365,28 +365,92 @@
     <div id="pagination" style="margin-top: 20px; text-align: center;"></div>
   </div>
 
-<div class="section">
-  <h2>宣傳內容管理（多組 / 支援 HTML）</h2>
-  <div id="promoListContainer"></div>
-  <button onclick="addPromoItem()">➕ 新增一段宣傳</button>
-  <button onclick="savePromoList()" style="margin-left:10px;">💾 儲存所有宣傳</button>
-  <button onclick="clearPromoList()" style="margin-left:10px; background-color: darkred;">🧹 清空全部宣傳</button>
-  <div id="promoSaveStatus" style="margin-top:10px; color:green; font-weight:bold;"></div>
+  <!-- 主題分類管理區塊從宣傳管理分離，移至現有題目區塊之後 -->
 
-  <h3>🔍 預覽區</h3>
-  <div id="promoPreview"></div>
-</div>
+  <div class="section">
+    <h2>宣傳內容管理（多組 / 支援 HTML）</h2>
+    <div id="promoListContainer"></div>
+    <button onclick="addPromoItem()">➕ 新增一段宣傳</button>
+    <button onclick="savePromoList()" style="margin-left:10px;">💾 儲存所有宣傳</button>
+    <button onclick="clearPromoList()" style="margin-left:10px; background-color: darkred;">🧹 清空全部宣傳</button>
+    <div id="promoSaveStatus" style="margin-top:10px; color:green; font-weight:bold;"></div>
+
+    <h3>🔍 預覽區</h3>
+    <div id="promoPreview"></div>
+  </div>
+
+  <!-- 主題分類管理區塊移至此處 -->
+  <div class="section">
+    <h2>主題分類管理</h2>
+    <ul id="categoryList" style="margin-bottom: 12px;"></ul>
+    <input type="text" id="newCategory" placeholder="新增分類名稱" style="width:70%;display:inline-block;margin-right:8px;" />
+    <button onclick="addCategory()">➕ 新增分類</button>
+  </div>
 
   </div>
 
   <script>
 
-const categoryList = [
+let categoryList = [
   "句子基本架構1", "主詞動詞一致性", "代名詞與格位用法", "名詞與形容詞搭配",
   "比較級與最高級", "介系詞的用法", "動詞種類與搭配", "動詞時態",
   "動名詞與不定詞", "子句與分詞構句", "副詞與連接詞比較", "動詞片語",
   "假設語氣與條件句", "倒裝與省略", "形容詞子句進階用法", "特殊文法結構"
 ];
+// 主題分類管理功能
+function renderCategoryList() {
+  const ul = document.getElementById('categoryList');
+  ul.innerHTML = '';
+  categoryList.forEach((cat, idx) => {
+    const li = document.createElement('li');
+    li.style.display = 'flex';
+    li.style.justifyContent = 'space-between';
+    li.style.marginBottom = '4px';
+    li.innerHTML = `
+      <span style="margin-right: 8px;">${idx + 1}.</span>
+      <input type="text" value="${cat}" onchange="updateCategory(${idx}, this.value)" style="flex:1; margin-right: 8px;" />
+      <button class="danger" onclick="deleteCategory(${idx})">🗑️</button>
+    `;
+    ul.appendChild(li);
+  });
+  refreshCategorySelects();
+}
+// 分類名稱更新
+function updateCategory(index, newValue) {
+  newValue = newValue.trim();
+  if (!newValue) return alert("分類名稱不得為空");
+  if (categoryList.includes(newValue)) return alert("已有重複分類名稱");
+  categoryList[index] = newValue;
+  renderCategoryList();
+}
+
+function addCategory() {
+  const input = document.getElementById('newCategory');
+  const value = input.value.trim();
+  if (!value) return alert("請輸入分類名稱");
+  if (categoryList.includes(value)) return alert("分類名稱已存在");
+  categoryList.push(value);
+  input.value = '';
+  renderCategoryList();
+}
+
+function deleteCategory(index) {
+  if (!confirm("確定要刪除這個分類嗎？")) return;
+  categoryList.splice(index, 1);
+  renderCategoryList();
+}
+
+function refreshCategorySelects() {
+  // 更新所有使用 categoryList 的 select 元件
+  const categoryHTML = '<option value="">--請選擇文法主題--</option>' +
+    categoryList.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+  document.getElementById('qCategory').innerHTML = categoryHTML;
+  document.getElementById('filterCategory').innerHTML = '<option value="">🔍 篩選主題（全部）</option>' +
+    categoryList.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+  renderQuestions(); // 重新渲染題目區
+}
+
+window.addEventListener('DOMContentLoaded', renderCategoryList);
 
     let questions = [];
     let currentPage = 1;
