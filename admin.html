@@ -314,6 +314,13 @@
         <option value="訪客">訪客</option>
       </select>
     </div>
+    <div class="field-group">
+      <label>分類：</label>
+      <select id="batchCategory">
+        <option value="">-- 不變更 --</option>
+        ${categoryList.map(cat => `<option value="${cat}">${cat}</option>`).join('')}
+      </select>
+    </div>
     <button onclick="applyBatchLabels()">📦 套用標籤至指定題目</button>
   </div>
   <script>
@@ -332,12 +339,14 @@
       const level = document.getElementById('batchLevel').value;
       const type = document.getElementById('batchType').value;
       const auth = document.getElementById('batchAuth').value;
+      const category = document.getElementById('batchCategory').value;
 
       for (let i = start; i <= end; i++) {
         if (freq) questions[i].freq = freq;
         if (level) questions[i].level = level;
         if (type) questions[i].type = type;
         if (auth) questions[i].auth = auth;
+        if (category) questions[i].category = category;
       }
 
       saveQuestions();
