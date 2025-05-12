@@ -395,7 +395,8 @@
     function renderCategoryOptions() {
       const select = document.getElementById('categoryFilter');
       select.innerHTML = '<option value="">-- 全部主題 --</option>';
-      const categories = [...new Set(allQuestions.map(q => q.category))].filter(Boolean);
+      // 排序並去除重複分類
+      const categories = [...new Set(allQuestions.map(q => q.category))].filter(Boolean).sort();
       categories.forEach(cat => {
         const opt = document.createElement('option');
         opt.value = cat;
@@ -423,7 +424,8 @@ function filterByCategory() {
       userLevel === '學員' ||
       userLevel === '好友' ||
       q.auth === '訪客';
-    const matchCategory = selected ? q.category === selected : true;
+    // 過濾空值，避免沒有 category 欄位的題目進入未分類
+    const matchCategory = selected ? (q.category && q.category === selected) : true;
     return allow && matchCategory;
   });
 
@@ -702,3 +704,17 @@ function toggleWrongMode() {
   </script>
 </body>
 </html>
+
+// --- 分類同步功能 (for backend/admin use) ---
+// 假設後台分類列表變數為 categoryList，題目陣列為 questions
+// 每次更新分類列表後呼叫 syncCategoriesAcrossQuestions()，再 saveQuestions()
+function syncCategoriesAcrossQuestions() {
+  // categoryList 與 questions 需於後台全域定義
+  if (typeof categoryList === 'undefined' || typeof questions === 'undefined') return;
+  const existingCategories = new Set(categoryList);
+  questions.forEach(q => {
+    if (!existingCategories.has(q.category)) {
+      q.category = ""; // 清空不存在的分類
+    }
+  });
+}

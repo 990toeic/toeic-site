@@ -421,6 +421,7 @@ function updateCategory(index, newValue) {
   if (!newValue) return alert("分類名稱不得為空");
   if (categoryList.includes(newValue)) return alert("已有重複分類名稱");
   categoryList[index] = newValue;
+  saveQuestions(); // 新增此行
   renderCategoryList();
 }
 
@@ -431,12 +432,14 @@ function addCategory() {
   if (categoryList.includes(value)) return alert("分類名稱已存在");
   categoryList.push(value);
   input.value = '';
+  saveQuestions(); // 新增此行
   renderCategoryList();
 }
 
 function deleteCategory(index) {
   if (!confirm("確定要刪除這個分類嗎？")) return;
   categoryList.splice(index, 1);
+  saveQuestions(); // 新增此行
   renderCategoryList();
 }
 
@@ -444,7 +447,9 @@ function refreshCategorySelects() {
   // 更新所有使用 categoryList 的 select 元件
   const categoryHTML = '<option value="">--請選擇文法主題--</option>' +
     categoryList.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+  document.getElementById('qCategory').innerHTML = '';
   document.getElementById('qCategory').innerHTML = categoryHTML;
+  document.getElementById('filterCategory').innerHTML = '';
   document.getElementById('filterCategory').innerHTML = '<option value="">🔍 篩選主題（全部）</option>' +
     categoryList.map(cat => `<option value="${cat}">${cat}</option>`).join('');
   renderQuestions(); // 重新渲染題目區
@@ -951,7 +956,7 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
         passwordStudent: document.getElementById('pwStudent').value.trim(),
         passwordFriend: document.getElementById('pwFriend').value.trim()
       };
-      const dataToSave = { settings, questions, promoList };
+      const dataToSave = { settings, questions, promoList, categoryList };
       try {
         const token = window.getFirebaseToken?.();
         if (!token) {
@@ -1068,6 +1073,10 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
       const settings = data.settings || {};
       document.getElementById('pwStudent').value = settings.passwordStudent || '';
       document.getElementById('pwFriend').value = settings.passwordFriend || '';
+      if (data.categoryList) {
+        categoryList = data.categoryList;
+      }
+      renderCategoryList();
       renderQuestions();
 
       window.getFirebaseToken = () => token;
