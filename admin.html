@@ -622,6 +622,10 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
         setTimeout(() => {
           if (typeof updateTooltipPreview === "function") updateTooltipPreview(globalIndex);
         }, 0);
+    // 用於安全處理正則特殊字元
+    function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
     // Tooltip 預覽功能
     function updateTooltipPreview(index) {
       const preview = document.getElementById(`hintPreview-${index}`);
@@ -637,7 +641,7 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
         const span = link
           ? `<a href="${link}" target="_blank"><span class="tipbox" data-tip="${safeTip}">${word}</span></a>`
           : `<span class="tipbox" data-tip="${safeTip}">${word}</span>`;
-        const regex = new RegExp(`\\b${word}\\b`, 'g');
+        const regex = new RegExp(`\\b${escapeRegExp(word)}\\b`, 'g');
         enriched = enriched.replace(regex, span);
       });
       preview.innerHTML = enriched;
