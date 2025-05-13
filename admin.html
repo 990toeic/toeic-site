@@ -174,30 +174,6 @@
 
 </style>
 </style>
-  <style>
-    /* Tooltip Form 樣式 */
-    .tooltip-form {
-      margin-top: 8px;
-      background: #f8fafc;
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      padding: 12px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-    }
-    .tooltip-form label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 4px;
-    }
-    .tooltip-form input {
-      width: 100%;
-      margin-bottom: 10px;
-      padding: 6px 8px;
-      border: 1px solid #cbd5e1;
-      border-radius: 4px;
-      background: #ffffff;
-    }
-  </style>
 </head>
 <body>
   <div id="loginBox">
@@ -225,10 +201,8 @@
     <label for="qAnswer">正確答案（如 A/B/C/D）</label>
     <input id="qAnswer" placeholder="請輸入正確答案代號" />
     <label for="qExplanation">解析</label>
-    <button type="button" class="secondary" onclick="insertTooltipForm(document.getElementById('qExplanation'))">插入 Tooltip</button>
     <textarea id="qExplanation" placeholder="解釋正確答案的理由"></textarea>
     <label for="qHint">提示</label>
-    <button type="button" class="secondary" onclick="insertTooltipForm(document.getElementById('qHint'))">插入 Tooltip</button>
     <textarea id="qHint" placeholder="提供給學生的解題提示"></textarea>
     <label for="qDeleteWords">刪除文字（用逗號分隔）</label>
     <input id="qDeleteWords" placeholder="例如：highly, in the new position" />
@@ -562,7 +536,6 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
           <div class="field-group" style="grid-column: span 2;">
             <label>解析：</label>
             <textarea id="${explanationId}" rows="3" style="flex:1" onchange="questions[${globalIndex}].explanation = this.value; saveQuestions()">${q.explanation}</textarea>
-            <button type="button" class="secondary" onclick="insertTooltipForm(this.previousElementSibling)">插入 Tooltip</button>
           </div>
           <div class="field-group" style="grid-column: span 2;">
             <label>提示：</label>
@@ -570,7 +543,6 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
               onchange="questions[${globalIndex}].hint = this.value; saveQuestions(); updateTooltipPreview(${globalIndex})"
               oninput="updateTooltipPreview(${globalIndex})"
             >${q.hint}</textarea>
-            <button type="button" class="secondary" onclick="insertTooltipForm(this.previousElementSibling)">插入 Tooltip</button>
           </div>
           <div id="hintPreview-${globalIndex}" class="tooltip-preview" style="margin-left: 80px; font-size: 13px; color: #1e293b;"></div>
           <div class="field-group" style="grid-column: span 2;">
@@ -1003,56 +975,6 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
       }
     }
 
-    // 插入 Tooltip 表單
-    function insertTooltipForm(textarea) {
-      if (textarea.nextElementSibling?.classList?.contains('tooltip-form')) return;
-
-      const form = document.createElement('div');
-      form.className = 'tooltip-form';
-      form.innerHTML = `
-        <label>選擇提示模板
-          <select class="tooltip-template">
-            <option value="">-- 自行輸入或選擇模板 --</option>
-            <option value="現在式|現在式|https://yourlink.com/present">現在式</option>
-            <option value="過去式|過去式|https://yourlink.com/past">過去式</option>
-            <option value="句型1|句型1|https://yourlink.com/pattern1">句型 1</option>
-            <option value="受詞子句|that 子句|">that 子句（無連結）</option>
-          </select>
-        </label>
-        <label>提示內容 <input type="text" class="tooltip-tip"></label>
-        <label>顯示文字 <input type="text" class="tooltip-show"></label>
-        <label>超連結網址（可留空）<input type="text" class="tooltip-link"></label>
-        <div style="text-align:right; margin-top:6px;">
-          <button type="button" class="secondary" onclick="confirmTooltipInsert(this)">插入</button>
-          <button type="button" onclick="this.closest('.tooltip-form').remove()">取消</button>
-        </div>
-      `;
-      // 模板選單邏輯
-      const templateSelect = form.querySelector('.tooltip-template');
-      templateSelect.addEventListener('change', e => {
-        const val = e.target.value;
-        if (!val) return;
-        const [tip, show, link] = val.split('|');
-        form.querySelector('.tooltip-tip').value = tip || '';
-        form.querySelector('.tooltip-show').value = show || '';
-        form.querySelector('.tooltip-link').value = link || '';
-      });
-      textarea.insertAdjacentElement('afterend', form);
-    }
-
-    function confirmTooltipInsert(btn) {
-      const form = btn.closest('.tooltip-form');
-      const textarea = form.previousElementSibling;
-      const tip = form.querySelector('.tooltip-tip').value.trim().replace(/"/g, '&quot;');
-      const show = form.querySelector('.tooltip-show').value.trim();
-      const link = form.querySelector('.tooltip-link').value.trim();
-      const html = link
-        ? `<a href="${link}" target="_blank"><span class="tipbox" data-tip="${tip}">${show}</span></a>`
-        : `<span class="tipbox" data-tip="${tip}">${show}</span>`;
-      textarea.value += (textarea.value ? '\n' : '') + html;
-      textarea.focus();
-      form.remove();
-    }
   </script>
 
 
