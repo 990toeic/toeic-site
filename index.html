@@ -528,9 +528,6 @@ function renderQuestion() {
   document.getElementById('progressBox').textContent =
     `第 ${Math.min(shuffledIndex + 1, shuffledPool.length)} / ${shuffledPool.length} 題`;
 
-  // --- 確保 hint 已經套用 renderHint ---
-  q.hint = renderHint(q.hint);
-  // ---
   document.getElementById('hintBox').innerHTML = showHint ? q.hint : '';
 }
     function applySimplify(text, deleteWords) {
