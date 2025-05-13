@@ -609,15 +609,19 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
         // 若為加號，不處理
         if (/^\s*\+\s*$/.test(part)) return part;
         const key = part.trim();
+        // 空字串直接回傳
+        if (!key) return part;
         if (window.tooltipMap[key]) {
           const { tip, link } = window.tooltipMap[key];
-          const safeTip = tip.replace(/"/g, '&quot;');
-          return link
-            ? `<a href="${link}" target="_blank"><span class="tipbox" data-tip="${safeTip}">${key}</span></a>`
-            : `<span class="tipbox" data-tip="${safeTip}">${key}</span>`;
-        } else {
-          return part;
+          const safeTip = (tip || '').replace(/"/g, '&quot;');
+          if (tip && link) {
+            return `<a href="${link}" target="_blank"><span class="tipbox" data-tip="${safeTip}">${key}</span></a>`;
+          } else if (tip) {
+            return `<span class="tipbox" data-tip="${safeTip}">${key}</span>`;
+          }
         }
+        // 無對應則保留原樣（不轉換為 HTML）
+        return part;
       }).join('');
       preview.innerHTML = enriched;
     }
