@@ -1040,6 +1040,42 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
   const app = initializeApp(firebaseConfig);
   const auth = getAuth();
 
+  async function enrichTooltipsFromSpreadsheet() {
+    const sheetId = '1uH7v5jjnB24ad1D_BWoHp-Jyr7-PtTdipH0auOsJyA4';
+    const sheetName = 'ws2';
+    const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+    try {
+      const res = await fetch(url);
+      const text = await res.text();
+      const json = JSON.parse(text.substring(47).slice(0, -2));
+      const rows = json.table.rows;
+      const tooltipMap = {};
+      rows.forEach(row => {
+        const key = row.c[0]?.v?.trim();
+        const hover = row.c[1]?.v?.trim();
+        const link = row.c[2]?.v?.trim();
+        if (key && hover) tooltipMap[key] = { tip: hover, link: link || '' };
+      });
+
+      questions.forEach(q => {
+        ['hint', 'explanation'].forEach(field => {
+          if (!q[field]) return;
+          Object.keys(tooltipMap).forEach(word => {
+            const { tip, link } = tooltipMap[word];
+            const safeTip = tip.replace(/"/g, '&quot;');
+            const span = link
+              ? `<a href="${link}" target="_blank"><span class="tipbox" data-tip="${safeTip}">${word}</span></a>`
+              : `<span class="tipbox" data-tip="${safeTip}">${word}</span>`;
+            const regex = new RegExp(`\\b${word}\\b`, 'g');
+            q[field] = q[field].replace(regex, span);
+          });
+        });
+      });
+    } catch (err) {
+      console.error("❌ 無法載入對照表", err);
+    }
+  }
+
   async function login() {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
@@ -1069,6 +1105,8 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
         categoryList = data.categoryList;
       }
       renderCategoryList();
+      // 先 enrichTooltips 再 render
+      await enrichTooltipsFromSpreadsheet();
       renderQuestions();
 
       window.getFirebaseToken = () => token;
