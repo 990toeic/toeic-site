@@ -356,6 +356,20 @@
     let wrongIndex = 0;
     // 全域 categoryList
     let categoryList = [];
+    // --- 工具提示字典 ---
+    let tooltipMap = {};
+    // 載入 Google Sheets ws2 工作表資料
+    fetch("https://docs.google.com/spreadsheets/d/1uH7v5jjnB24ad1D_BWoHp-Jyr7-PtTdipH0auOsJyA4/gviz/tq?tqx=out:tsv&sheet=ws2")
+      .then(res => res.text())
+      .then(text => {
+        tooltipMap = {};
+        const lines = text.trim().split('\n');
+        lines.forEach(line => {
+          const [key, val] = line.split('\t');
+          if (key && val) tooltipMap[key.trim()] = val.trim();
+        });
+      });
+
     function loadQuestions() {
       fetch('https://toeic-990-johnny-default-rtdb.asia-southeast1.firebasedatabase.app/toeicData.json')
         .then(res => res.json())
@@ -528,12 +542,23 @@ function renderQuestion() {
       const q = shuffledPool[shuffledIndex];
       document.getElementById('questionText').innerHTML = applySimplify(q.text, q.deleteWords);
     }
+    // 將提示純文字轉換為含 tipbox 的 HTML
+    function renderHint(text) {
+      if (!text || !tooltipMap) return text;
+      return text.split('+').map(part => {
+        const trimmed = part.trim();
+        const tip = tooltipMap[trimmed];
+        return tip
+          ? `<span class="tipbox" data-tip="${tip}">${trimmed}</span>`
+          : trimmed;
+      }).join(' + ');
+    }
     function toggleHint() {
       const box = document.getElementById('hintBox');
       const q = shuffledPool[shuffledIndex];
       showHint = !showHint;
       box.style.display = showHint ? 'block' : 'none';
-      box.innerHTML = showHint ? q.hint : '';
+      box.innerHTML = showHint ? renderHint(q.hint) : '';
     }
     function selectOption(letter) {
       selectedOption = letter;
