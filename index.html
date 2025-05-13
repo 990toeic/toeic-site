@@ -273,18 +273,42 @@
       }
       .question-block {
         padding: 20px;
-        margin: 0 10px;
+        margin: 0 auto;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        min-height: calc(100vh - 160px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
       }
       .question-text {
         font-size: 18px;
+        line-height: 1.6;
       }
       .option {
-        padding: 8px 10px;
-        font-size: 14px;
+        padding: 12px 14px;
+        font-size: 15px;
+      }
+      .circle {
+        width: 22px;
+        height: 22px;
+      }
+      .hint-box,
+      .explanation-box {
+        font-size: 15px;
+        line-height: 1.7;
+      }
+      .buttons {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        width: 100%;
       }
       .buttons button {
-        padding: 6px 10px;
-        font-size: 13px;
+        padding: 8px 12px;
+        font-size: 14px;
+        width: 100%;
       }
       #loginRow {
         flex-direction: column;
@@ -297,10 +321,18 @@
       #loginRow button,
       #loginRow select {
         width: 100%;
-        max-width: 180px;
+        max-width: 220px;
       }
       #promoArea {
-        padding: 20px 10px;
+        padding: 16px 10px;
+      }
+      .meta-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .meta-tags {
+        justify-content: flex-start;
       }
     }
 </style>
