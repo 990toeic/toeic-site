@@ -566,9 +566,13 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
           </div>
           <div class="field-group" style="grid-column: span 2;">
             <label>提示：</label>
-            <textarea id="${hintId}" rows="2" style="flex:1" onchange="questions[${globalIndex}].hint = this.value; saveQuestions()">${q.hint}</textarea>
+            <textarea id="hint-${globalIndex}" rows="2" style="flex:1"
+              onchange="questions[${globalIndex}].hint = this.value; saveQuestions(); updateTooltipPreview(${globalIndex})"
+              oninput="updateTooltipPreview(${globalIndex})"
+            >${q.hint}</textarea>
             <button type="button" class="secondary" onclick="insertTooltipForm(this.previousElementSibling)">插入 Tooltip</button>
           </div>
+          <div id="hintPreview-${globalIndex}" class="tooltip-preview" style="margin-left: 80px; font-size: 13px; color: #1e293b;"></div>
           <div class="field-group" style="grid-column: span 2;">
             <label>刪除文字：</label>
             <input style="flex:1" value="${q.deleteWords?.join(', ') ?? ''}" onchange="questions[${globalIndex}].deleteWords = this.value.split(',').map(x => x.trim()); saveQuestions()">
@@ -614,6 +618,30 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
 
         block.appendChild(formDiv);
         list.appendChild(block);
+        // 初始化 tooltip 預覽
+        setTimeout(() => {
+          if (typeof updateTooltipPreview === "function") updateTooltipPreview(globalIndex);
+        }, 0);
+    // Tooltip 預覽功能
+    function updateTooltipPreview(index) {
+      const preview = document.getElementById(`hintPreview-${index}`);
+      const hintRaw = questions[index].hint || '';
+      if (!window.tooltipMap) {
+        preview.innerHTML = hintRaw;
+        return;
+      }
+      let enriched = hintRaw;
+      Object.keys(window.tooltipMap).forEach(word => {
+        const { tip, link } = window.tooltipMap[word];
+        const safeTip = tip.replace(/"/g, '&quot;');
+        const span = link
+          ? `<a href="${link}" target="_blank"><span class="tipbox" data-tip="${safeTip}">${word}</span></a>`
+          : `<span class="tipbox" data-tip="${safeTip}">${word}</span>`;
+        const regex = new RegExp(`\\b${word}\\b`, 'g');
+        enriched = enriched.replace(regex, span);
+      });
+      preview.innerHTML = enriched;
+    }
       });
 
       // 建立分頁按鈕
@@ -1056,21 +1084,8 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
         const link = row.c[2]?.v?.trim();
         if (key && hover) tooltipMap[key] = { tip: hover, link: link || '' };
       });
-
-      questions.forEach(q => {
-        ['hint', 'explanation'].forEach(field => {
-          if (!q[field]) return;
-          Object.keys(tooltipMap).forEach(word => {
-            const { tip, link } = tooltipMap[word];
-            const safeTip = tip.replace(/"/g, '&quot;');
-            const span = link
-              ? `<a href="${link}" target="_blank"><span class="tipbox" data-tip="${safeTip}">${word}</span></a>`
-              : `<span class="tipbox" data-tip="${safeTip}">${word}</span>`;
-            const regex = new RegExp(`\\b${word}\\b`, 'g');
-            q[field] = q[field].replace(regex, span);
-          });
-        });
-      });
+      // 不自動覆蓋原始題目內容
+      window.tooltipMap = tooltipMap;
     } catch (err) {
       console.error("❌ 無法載入對照表", err);
     }
