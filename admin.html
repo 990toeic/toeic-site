@@ -613,29 +613,31 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
         setTimeout(() => {
           if (typeof updateTooltipPreview === "function") updateTooltipPreview(globalIndex);
         }, 0);
-    // Tooltip 預覽功能（支援「句型3 + 公式3 + 公式4」純文字自動對照轉換）
-    function convertHintToHtml(raw) {
-      if (!window.tooltipMap) return raw;
-      const parts = raw.split(/(\s*\+\s*)/);
-      return parts.map(part => {
-        const key = part.trim();
-        const data = window.tooltipMap[key];
-        if (data) {
-          const safeTip = data.tip.replace(/"/g, '&quot;');
-          return data.link
-            ? `<a href="${data.link}" target="_blank"><span class="tipbox" data-tip="${safeTip}">${key}</span></a>`
-            : `<span class="tipbox" data-tip="${safeTip}">${key}</span>`;
-        } else {
-          return part;
-        }
-      }).join('');
-    }
-    function updateTooltipPreview(index) {
-      const preview = document.getElementById(`hintPreview-${index}`);
-      const hintRaw = questions[index].hint || '';
-      preview.innerHTML = convertHintToHtml(hintRaw);
-    }
       });
+
+      // Tooltip 預覽功能（支援「句型3 + 公式3 + 公式4」純文字自動對照轉換）
+      window.convertHintToHtml = function(raw) {
+        if (!window.tooltipMap) return raw;
+        const parts = raw.split(/(\s*\+\s*)/);
+        return parts.map(part => {
+          const key = part.trim();
+          const data = window.tooltipMap[key];
+          if (data) {
+            const safeTip = data.tip.replace(/"/g, '&quot;');
+            return data.link
+              ? `<a href="${data.link}" target="_blank"><span class="tipbox" data-tip="${safeTip}">${key}</span></a>`
+              : `<span class="tipbox" data-tip="${safeTip}">${key}</span>`;
+          } else {
+            return part;
+          }
+        }).join('');
+      }
+      window.updateTooltipPreview = function(index) {
+        const preview = document.getElementById(`hintPreview-${index}`);
+        if (!preview) return;
+        const hintRaw = questions[index]?.hint || '';
+        preview.innerHTML = window.convertHintToHtml(hintRaw);
+      }
 
       // 建立分頁按鈕
       for (let i = 1; i <= totalPages; i++) {
@@ -1066,6 +1068,12 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
       // 先 enrichTooltips 再 render
       await enrichTooltipsFromSpreadsheet();
       renderQuestions();
+      // 確保所有 hint 預覽自動套用
+      setTimeout(() => {
+        if (typeof window.updateTooltipPreview === "function" && Array.isArray(questions)) {
+          for (let i = 0; i < questions.length; ++i) window.updateTooltipPreview(i);
+        }
+      }, 0);
 
       window.getFirebaseToken = () => token;
     } catch (e) {
