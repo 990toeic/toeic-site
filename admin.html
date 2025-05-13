@@ -602,12 +602,10 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
         preview.innerHTML = hintRaw;
         return;
       }
-      // 將字串依加號分割，並保留加號本身
-      // 「句型3 + 公式3 + 公式4」=> ["句型3", " + ", "公式3", " + ", "公式4"]
-      const parts = hintRaw.split(/(\s*\+\s*)/);
+
+      // 將字串拆成「詞 + 符號 + 詞」格式
+      const parts = hintRaw.split(/(\s*\+\s*)/); // 保留加號作為分隔
       const enriched = parts.map(part => {
-        // 若為加號，不處理
-        if (/^\s*\+\s*$/.test(part)) return part;
         const key = part.trim();
         if (window.tooltipMap[key]) {
           const { tip, link } = window.tooltipMap[key];
@@ -1013,9 +1011,8 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
         const link = row.c[2]?.v?.trim();
         if (key && hover) tooltipMap[key] = { tip: hover, link: link || '' };
       });
+      // 不自動覆蓋原始題目內容
       window.tooltipMap = tooltipMap;
-      // 載入後刷新題目區以套用 tooltip
-      if (typeof renderQuestions === "function") renderQuestions();
     } catch (err) {
       console.error("❌ 無法載入對照表", err);
     }
@@ -1060,13 +1057,6 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
     }
   }
 
-</script>
-
-<script>
-  // 頁面初始化時，自動同步 tooltipMap
-  window.addEventListener('DOMContentLoaded', () => {
-    enrichTooltipsFromSpreadsheet();
-  });
   window.login = login;
 </script>
 
