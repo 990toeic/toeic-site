@@ -595,29 +595,26 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
           if (typeof updateTooltipPreview === "function") updateTooltipPreview(globalIndex);
         }, 0);
     // Tooltip 預覽功能（支援「句型3 + 公式3 + 公式4」純文字自動對照轉換）
-    function updateTooltipPreview(index) {
-      const preview = document.getElementById(`hintPreview-${index}`);
-      const hintRaw = questions[index].hint || '';
-      if (!window.tooltipMap) {
-        preview.innerHTML = hintRaw;
-        return;
-      }
-
-      // 將字串拆成「詞 + 符號 + 詞」格式
-      const parts = hintRaw.split(/(\s*\+\s*)/); // 保留加號作為分隔
-      const enriched = parts.map(part => {
+    function convertHintToHtml(raw) {
+      if (!window.tooltipMap) return raw;
+      const parts = raw.split(/(\s*\+\s*)/);
+      return parts.map(part => {
         const key = part.trim();
-        if (window.tooltipMap[key]) {
-          const { tip, link } = window.tooltipMap[key];
-          const safeTip = tip.replace(/"/g, '&quot;');
-          return link
-            ? `<a href="${link}" target="_blank"><span class="tipbox" data-tip="${safeTip}">${key}</span></a>`
+        const data = window.tooltipMap[key];
+        if (data) {
+          const safeTip = data.tip.replace(/"/g, '&quot;');
+          return data.link
+            ? `<a href="${data.link}" target="_blank"><span class="tipbox" data-tip="${safeTip}">${key}</span></a>`
             : `<span class="tipbox" data-tip="${safeTip}">${key}</span>`;
         } else {
           return part;
         }
       }).join('');
-      preview.innerHTML = enriched;
+    }
+    function updateTooltipPreview(index) {
+      const preview = document.getElementById(`hintPreview-${index}`);
+      const hintRaw = questions[index].hint || '';
+      preview.innerHTML = convertHintToHtml(hintRaw);
     }
       });
 
