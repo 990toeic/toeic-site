@@ -358,8 +358,8 @@
     let categoryList = [];
     // --- 工具提示字典 ---
     let tooltipMap = {};
-    // 載入 Google Sheets ws2 工作表資料
-    fetch("https://docs.google.com/spreadsheets/d/1uH7v5jjnB24ad1D_BWoHp-Jyr7-PtTdipH0auOsJyA4/gviz/tq?tqx=out:tsv&sheet=ws2")
+    // 載入 Google Sheets ws2 工作表資料（使用 export 格式避免無法解析）
+    fetch("https://docs.google.com/spreadsheets/d/1uH7v5jjnB24ad1D_BWoHp-Jyr7-PtTdipH0auOsJyA4/export?format=tsv&gid=258151638")
       .then(res => res.text())
       .then(text => {
         tooltipMap = {};
