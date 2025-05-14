@@ -136,6 +136,13 @@
       margin-top: 25px;
       flex-wrap: wrap;
     }
+    /* 新增 meta-row 彈性排版樣式 */
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: nowrap;
+    }
     .buttons {
       display: flex;
       gap: 12px;
@@ -158,23 +165,47 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
     .meta-tags {
+      flex-grow: 1;
+      overflow-x: auto;
+      white-space: nowrap;
+      flex-wrap: nowrap;
       display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
+      justify-content: flex-end;
+      padding-left: 12px;
+      gap: 6px;
+    }
+    .meta-tags-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+      flex-wrap: nowrap;
+    }
+    .meta-tags-row:nth-child(2) {
+      justify-content: center;
     }
     .meta-tag {
       color: white;
-      padding: 4px 10px;
-      border-radius: 14px;
-      font-size: 13px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
       font-weight: 500;
       backdrop-filter: blur(4px);
     }
-    .meta-tag:nth-child(1) { background-color: rgba(138, 168, 151, 0.7); }
-    .meta-tag:nth-child(2) { background-color: rgba(194, 169, 76, 0.7); }
-    .meta-tag:nth-child(3) { background-color: rgba(165, 159, 201, 0.7); }
-    .meta-tag:nth-child(4) { background-color: rgba(212, 156, 156, 0.7); }
-    .meta-tag:nth-child(5) { background-color: rgba(90, 140, 200, 0.7); }
+    .meta-tag.tag-freq {
+      background-color: rgba(138, 168, 151, 0.7);
+    }
+    .meta-tag.tag-level {
+      background-color: rgba(194, 169, 76, 0.7);
+    }
+    .meta-tag.tag-type {
+      background-color: rgba(165, 159, 201, 0.7);
+    }
+    .meta-tag.tag-auth {
+      background-color: rgba(212, 156, 156, 0.7);
+    }
+    .meta-tag.tag-category {
+      background-color: rgba(90, 140, 200, 0.7);
+    }
     .hint-box, .explanation-box {
       background-color: #eef5ff;
       padding: 15px;
@@ -194,6 +225,8 @@
       margin-bottom: 1px;
       border-radius: 3px;
       padding: 0 2px;
+      line-height: inherit;
+      vertical-align: baseline;
     }
     .highlight-adj {
       background-color: rgba(214, 176, 255, 0.45); /* 淡紫紅 */
@@ -201,6 +234,8 @@
       margin-bottom: 1px;
       border-radius: 3px;
       padding: 0 2px;
+      line-height: inherit;
+      vertical-align: baseline;
     }
     .highlight-adv {
       background-color: rgba(173, 230, 201, 0.5); /* 淡綠藍 */
@@ -208,6 +243,8 @@
       margin-bottom: 1px;
       border-radius: 3px;
       padding: 0 2px;
+      line-height: inherit;
+      vertical-align: baseline;
     }
     label#categoryRow {
       display: block;
@@ -366,6 +403,16 @@
         justify-content: flex-start;
       }
     }
+    /* #clauseHints 樣式，與 meta-row/buttons/promoArea 區塊相關 */
+    #clauseHints {
+      font-size: 12px;
+      color: #444;
+      margin-left: 12px;
+      max-width: 50%;
+      min-height: 42px;
+      flex-shrink: 0;
+      visibility: hidden;
+    }
 </style>
 </head>
 <body>
@@ -392,6 +439,17 @@
         <button onclick="submitAnswer()" id="submitBtn">送出</button>
         <button onclick="toggleSimplify()">簡化</button>
         <button onclick="toggleHint()">提示</button>
+      </div>
+      <!-- 簡化提示區塊插入於此 -->
+      <div id="clauseHints">
+        <div style="margin-bottom: 4px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+          <span>刪除線＝補充</span>
+          <span style="background-color: #fbe3a6; padding: 2px 6px; border-radius: 6px;">名詞子句</span>
+        </div>
+        <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+          <span style="background-color: #e5d6f9; padding: 2px 6px; border-radius: 6px;">形容詞子句</span>
+          <span style="background-color: #cce8db; padding: 2px 6px; border-radius: 6px;">副詞子句</span>
+        </div>
       </div>
       <div class="meta-tags" id="tags"></div>
     </div>
@@ -588,11 +646,15 @@ function renderQuestion() {
     optionsDiv.appendChild(div);
   });
   document.getElementById('tags').innerHTML = `
-    <span class="meta-tag">${q.freq}</span>
-    <span class="meta-tag">${q.level}</span>
-    <span class="meta-tag">${q.type}</span>
-    <span class="meta-tag">${q.auth}</span>
-    <span class="meta-tag">${q.category}</span>`;
+    <div class="meta-tags-row">
+      <span class="meta-tag tag-freq">${q.freq}</span>
+      <span class="meta-tag tag-level">${q.level}</span>
+      <span class="meta-tag tag-type">${q.type}</span>
+      <span class="meta-tag tag-auth">${q.auth}</span>
+    </div>
+    <div class="meta-tags-row">
+      <span class="meta-tag tag-category">${q.category}</span>
+    </div>`;
   document.getElementById('progressBox').textContent =
     `第 ${Math.min(shuffledIndex + 1, shuffledPool.length)} / ${shuffledPool.length} 題`;
 
@@ -627,6 +689,7 @@ function renderQuestion() {
       simplified = !simplified;
       const q = shuffledPool[shuffledIndex];
       document.getElementById('questionText').innerHTML = applySimplify(q.text, q.deleteWords, q.highlightPhrases);
+      document.getElementById('clauseHints').style.visibility = simplified ? 'visible' : 'hidden';
     }
     // 將提示純文字轉換為含 tipbox 的 HTML
     function renderHint(text) {
