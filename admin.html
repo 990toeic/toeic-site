@@ -97,6 +97,15 @@
     }
 
     .question-block strong {
+    .highlight-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .highlight-row select {
+      flex: 1;
+      padding: 6px 10px;
+    }
       color: #1e40af;
     }
 
@@ -225,6 +234,9 @@
     <textarea id="qHint" placeholder="提供給學生的解題提示"></textarea>
     <label for="qDeleteWords">刪除文字（用逗號分隔）</label>
     <input id="qDeleteWords" placeholder="例如：highly, in the new position" />
+    <label>高亮片語（可多組）</label>
+    <div id="highlightContainer"></div>
+    <button type="button" onclick="addHighlightRow()">➕ 新增高亮片語</button>
     <label for="qFreq">頻率</label>
     <select id="qFreq">
       <option value="高頻">高頻</option>
@@ -605,6 +617,11 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
   ${categoryList.map(cat => `<option ${q.category === cat ? 'selected' : ''}>${cat}</option>`).join('')}
 </select>
           </div>
+          <div class="field-group" style="grid-column: span 2;">
+            <label>高亮片語：</label>
+            <div id="highlightEditor-${globalIndex}"></div>
+            <button type="button" onclick="addHighlightRowToEditor(${globalIndex})">➕ 新增高亮片語</button>
+          </div>
         `;
 
         block.appendChild(formDiv);
@@ -612,6 +629,11 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
         // 初始化 tooltip 預覽
         setTimeout(() => {
           if (typeof updateTooltipPreview === "function") updateTooltipPreview(globalIndex);
+        }, 0);
+        // 初始化高亮片語編輯器
+        setTimeout(() => {
+          const hps = q.highlightPhrases || [];
+          hps.forEach(item => addHighlightRowToEditor(globalIndex, item.text, item.type));
         }, 0);
       });
 
@@ -776,6 +798,12 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
       if (!qText || qOptions.length < 2 || !qAnswer) {
         alert("請填寫題目、至少兩個選項與正確答案"); return;
       }
+      const highlights = [];
+      document.querySelectorAll('.highlight-row').forEach(row => {
+        const text = row.querySelector('input').value.trim();
+        const type = row.querySelector('select').value;
+        if (text && type) highlights.push({ text, type });
+      });
       const q = {
         text: qText,
         options: qOptions,
@@ -787,13 +815,16 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
         level: document.getElementById('qLevel').value,
         type: document.getElementById('qType').value,
         auth: document.getElementById('qAuth').value,
-        category: document.getElementById('qCategory').value
+        category: document.getElementById('qCategory').value,
+        highlightPhrases: highlights,
       };
       questions.push(q);
       window.lastAddedIndex = questions.length;
       saveQuestions(); renderQuestions();
       document.querySelectorAll('#qText, #qOptions, #qAnswer, #qExplanation, #qHint, #qDeleteWords').forEach(e => e.value = '');
       ['qFreq','qLevel','qType','qAuth','qCategory'].forEach(id => document.getElementById(id).selectedIndex = 0);
+      // 清空高亮片語區塊
+      document.getElementById('highlightContainer').innerHTML = '';
     }
 
     function deleteQuestion(index) {
@@ -855,6 +886,82 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
 
     document.getElementById('addBtn').addEventListener('click', addQuestion);
     // Firebase 載入後會自動 renderQuestions()
+
+    function addHighlightRow(text = '', type = '') {
+      const container = document.getElementById('highlightContainer');
+      const row = document.createElement('div');
+      row.className = 'highlight-row';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = '輸入文字';
+      input.style.flex = '2';
+      input.value = text;
+
+      const select = document.createElement('select');
+      select.innerHTML = `
+        <option value="">-- 選擇子句類型 --</option>
+        <option value="noun" ${type === 'noun' ? 'selected' : ''}>名詞子句</option>
+        <option value="adj" ${type === 'adj' ? 'selected' : ''}>形容詞子句</option>
+        <option value="adv" ${type === 'adv' ? 'selected' : ''}>副詞子句</option>
+      `;
+
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '🗑️';
+      delBtn.onclick = () => row.remove();
+
+      row.appendChild(input);
+      row.appendChild(select);
+      row.appendChild(delBtn);
+      container.appendChild(row);
+    }
+
+    // 編輯現有題目用的高亮片語編輯器
+    function addHighlightRowToEditor(index, text = '', type = '') {
+      const container = document.getElementById(`highlightEditor-${index}`);
+      if (!container) return;
+      const row = document.createElement('div');
+      row.className = 'highlight-row';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = '輸入文字';
+      input.style.flex = '2';
+      input.value = text;
+
+      const select = document.createElement('select');
+      select.innerHTML = `
+        <option value="">-- 選擇子句類型 --</option>
+        <option value="noun" ${type === 'noun' ? 'selected' : ''}>名詞子句</option>
+        <option value="adj" ${type === 'adj' ? 'selected' : ''}>形容詞子句</option>
+        <option value="adv" ${type === 'adv' ? 'selected' : ''}>副詞子句</option>
+      `;
+      select.onchange = saveHighlightEditor;
+      input.onchange = saveHighlightEditor;
+
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '🗑️';
+      delBtn.onclick = () => {
+        row.remove();
+        saveHighlightEditor();
+      };
+
+      row.appendChild(input);
+      row.appendChild(select);
+      row.appendChild(delBtn);
+      container.appendChild(row);
+
+      function saveHighlightEditor() {
+        const highlights = [];
+        container.querySelectorAll('.highlight-row').forEach(r => {
+          const txt = r.querySelector('input').value.trim();
+          const typ = r.querySelector('select').value;
+          if (txt && typ) highlights.push({ text: txt, type: typ });
+        });
+        questions[index].highlightPhrases = highlights;
+        saveQuestions();
+      }
+    }
 
     // 全部展開/收合功能已移除，避免與整體收合設計重複
 
@@ -1112,4 +1219,3 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
   style.textContent = `.section.collapsed > *:not(button):not(h2) { display: none !important; }`;
   document.head.appendChild(style);
 </script>
-</html>
