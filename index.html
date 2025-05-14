@@ -188,6 +188,27 @@
       text-decoration: line-through;
       color: #999;
     }
+    .highlight-noun {
+      background-color: rgba(255, 223, 160, 0.5); /* 柔和米黃色 */
+      display: inline-block;
+      margin-bottom: 1px;
+      border-radius: 3px;
+      padding: 0 2px;
+    }
+    .highlight-adj {
+      background-color: rgba(214, 176, 255, 0.45); /* 淡紫紅 */
+      display: inline-block;
+      margin-bottom: 1px;
+      border-radius: 3px;
+      padding: 0 2px;
+    }
+    .highlight-adv {
+      background-color: rgba(173, 230, 201, 0.5); /* 淡綠藍 */
+      display: inline-block;
+      margin-bottom: 1px;
+      border-radius: 3px;
+      padding: 0 2px;
+    }
     label#categoryRow {
       display: block;
       font-size: 13px;
@@ -554,7 +575,7 @@ function renderQuestion() {
   }
 
   const q = shuffledPool[shuffledIndex];
-  document.getElementById('questionText').innerHTML = applySimplify(q.text, q.deleteWords);
+  document.getElementById('questionText').innerHTML = applySimplify(q.text, q.deleteWords, q.highlightPhrases);
   const optionsDiv = document.getElementById('options');
   optionsDiv.innerHTML = '';
   const abcd = ['A', 'B', 'C', 'D'];
@@ -577,19 +598,35 @@ function renderQuestion() {
 
   document.getElementById('hintBox').innerHTML = showHint ? renderHint(q.hint) : '';
 }
-    function applySimplify(text, deleteWords) {
-      if (!simplified || !deleteWords || !deleteWords.length) return text;
+    function applySimplify(text, deleteWords = [], highlightPhrases = []) {
+      if (!simplified) return text;
       let result = text;
+
+      // highlight 先套用
+      highlightPhrases.forEach(p => {
+        const { text: phrase, type } = p;
+        const className = type === 'noun' ? 'highlight-noun'
+                        : type === 'adj' ? 'highlight-adj'
+                        : type === 'adv' ? 'highlight-adv'
+                        : '';
+        if (className && phrase) {
+          const regex = new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+          result = result.replace(regex, `<span class="${className}">$&</span>`);
+        }
+      });
+
+      // deleteWords 再套用
       deleteWords.forEach(word => {
         const regex = new RegExp(word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
         result = result.replace(regex, '<span class="strikethrough">$&</span>');
       });
+
       return result;
     }
     function toggleSimplify() {
       simplified = !simplified;
       const q = shuffledPool[shuffledIndex];
-      document.getElementById('questionText').innerHTML = applySimplify(q.text, q.deleteWords);
+      document.getElementById('questionText').innerHTML = applySimplify(q.text, q.deleteWords, q.highlightPhrases);
     }
     // 將提示純文字轉換為含 tipbox 的 HTML
     function renderHint(text) {
