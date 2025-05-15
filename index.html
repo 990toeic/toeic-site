@@ -618,6 +618,7 @@ function renderQuestion() {
   if (checkWrongModeDone()) return;
 
   simplified = false;
+  document.getElementById('clauseHints').style.visibility = 'hidden';
   showHint = false;
   selectedOption = '';
   document.getElementById('hintBox').style.display = 'none';
