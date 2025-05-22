@@ -252,7 +252,7 @@
     <label for="qType">類型</label>
     <select id="qType">
       <option value="真題">真題</option>
-      <option value="題庫">題庫</option>
+      <option value="弱底">弱底</option>
     </select>
     <label for="qAuth">權限</label>
     <select id="qAuth">
@@ -307,7 +307,7 @@
       <select id="batchType">
         <option value="">-- 不變更 --</option>
         <option value="真題">真題</option>
-        <option value="題庫">題庫</option>
+        <option value="弱底">弱底</option>
       </select>
     </div>
     <div class="field-group">
@@ -600,7 +600,7 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
             <label>類型：</label>
             <select onchange="questions[${globalIndex}].type = this.value; saveQuestions()">
               <option ${q.type==='真題'?'selected':''}>真題</option>
-              <option ${q.type==='題庫'?'selected':''}>題庫</option>
+              <option ${q.type==='弱底'?'selected':''}>弱底</option>
             </select>
           </div>
           <div class="field-group">
@@ -741,7 +741,7 @@ window.addEventListener('DOMContentLoaded', renderCategoryList);
           <td>
             <select style="min-width:100px;">
               <option ${q.type==='真題'?'selected':''}>真題</option>
-              <option ${q.type==='題庫'?'selected':''}>題庫</option>
+              <option ${q.type==='弱底'?'selected':''}>弱底</option>
             </select>
           </td>
           <td>
