@@ -764,7 +764,7 @@ function submitAnswer() {
     // 修正解析顯示格式
     if (correct) {
       document.getElementById('explanationBox').innerHTML =
-        '<span style="color:green; font-weight:bold;">✅ Correct!</span> ' + q.explanation;
+        '<span style="color:green; font-weight:bold;">✅ Correct!</span> <span style="font-size:15px;font-weight:bold;color:black;">→</span> ' + q.explanation;
     } else {
       // 答錯時：Incorrect. 與「答案為」之間一個空格，「答案為」與「A.」之間一個空格，「A.」紅色加粗，「A.」後一空格+→+空格+解析
       document.getElementById('explanationBox').innerHTML =
