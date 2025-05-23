@@ -7,6 +7,14 @@
   快點多益⋅P5速成 - 無關單字⋅全靠公式
   </title>
   <style>
+    .main-content {
+      margin-top: 64px;
+    }
+    @media (max-width: 600px) {
+      .main-content {
+        margin-top: 16px;
+      }
+    }
     body {
       font-family: 'Segoe UI', 'Noto Sans TC', sans-serif;
       background-color: #f6f8fa;
@@ -20,15 +28,6 @@
       margin-bottom: 8px;
       font-size: 20px;
       font-weight: 700;
-    }
-    h1::after {
-      content: "";
-      display: block;
-      margin: 6px auto 0;
-      width: 40px;
-      height: 2px;
-      background: #5b9bd5;
-      border-radius: 2px;
     }
     #loginRow {
       position: absolute;
@@ -288,6 +287,91 @@
       animation: shake 0.3s;
     }
 
+    .mobile-title-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      margin-bottom: 8px;
+      width: 100%;
+    }
+    .title-left,
+    .title-right {
+      font-size: 13px;
+      color: #bbb;
+      flex: 1 1 0;
+      white-space: nowrap;
+      text-align: center;
+      font-weight: 400;
+      letter-spacing: 0.5px;
+    }
+    .title-left {
+      text-align: right;
+      padding-right: 8px;
+    }
+    .title-right {
+      text-align: left;
+      padding-left: 8px;
+    }
+    .mobile-title-row h1 {
+      margin: 0 12px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #2e3b4e;
+      letter-spacing: 0.7px;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    /* 新增 promo-mobile 樣式 */
+    .promo-mobile {
+      display: none;
+    }
+    @media (max-width: 600px) {
+      .mobile-title-row {
+        flex-direction: column;
+        gap: 0;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 6px;
+      }
+      .title-left,
+      .title-right {
+        font-size: 12px;
+        color: #bbb;
+        flex: none;
+        white-space: normal;
+        padding: 0;
+        text-align: center;
+        display: inline;
+      }
+      .mobile-title-row h1 {
+        font-size: 18px;
+        margin: 0 0 2px 0;
+      }
+      .mobile-title-row .title-left::after {
+        content: "｜";
+        padding: 0 3px;
+        color: #bbb;
+      }
+      .mobile-title-row .title-right {
+        display: inline;
+      }
+      /* 新增 promo-mobile 響應式顯示 */
+      .mobile-title-row .title-left,
+      .mobile-title-row .title-right {
+        display: none !important;
+      }
+      .mobile-title-row .promo-mobile {
+        display: block !important;
+        font-size: 12px;
+        color: #bbb;
+        margin-bottom: 4px;
+        margin-top: 2px;
+        text-align: center;
+      }
+    }
+
     .tipbox {
       position: relative;
       color: #1a5fb4;
@@ -538,43 +622,45 @@
     <button onclick="toggleWrongMode()" id="wrongModeBtn" style="padding: 6px 10px; font-size: 14px; background-color: #f5f5f5; color: #333; border: 1px solid #999; border-radius: 4px; cursor: pointer;">回顧錯題</button>
     <span id="progressBox" style="font-size:12px; color:#888; margin-left:10px;"></span>
   </div>
-  <div style="height: 36px;"></div>
-  <div style="max-width: 720px; margin: 0 auto 5px auto; text-align: center;">
-    <div class="mobile-title-row" style="display: flex; flex-direction: column; align-items: center; gap: 0; margin-bottom: 8px;">
-      <span style="font-size: 12px; color: #bbb; margin-bottom:8px;">無關單字</span>
-      <h1 style="margin: 0; font-size: 20px; font-weight: 700; color: #2e3b4e; letter-spacing: 0.7px; margin-bottom:8px;">
-        快點多益⋅P5速成
-      </h1>
-      <span style="font-size: 12px; color: #bbb; margin-bottom:8px;">全靠公式</span>
-    </div>
-  </div>
-  <div class="question-block">
-    <div class="question-text" id="questionText"></div>
-    <div id="options"></div>
-    <div class="meta-row">
-      <div class="buttons">
-        <button onclick="submitAnswer()" id="submitBtn">送出</button>
-        <button onclick="toggleSimplify()">簡化</button>
-        <button onclick="toggleHint()">提示</button>
+  <div class="main-content">
+    <div style="max-width: 720px; margin: 0 auto 5px auto; text-align: center;">
+      <div class="mobile-title-row">
+        <span class="title-left">Learn fast. Score faster.</span>
+        <h1>快點多益⋅P5速成</h1>
+        <span class="promo-mobile">Learn fast. Score faster. 無關單字⋅全靠公式</span>
+        <span class="title-right">無關單字⋅全靠公式</span>
       </div>
-      <!-- 簡化提示區塊插入於此 -->
-      <div id="clauseHints">
-        <div style="margin-bottom: 4px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
-          <span>刪除線＝補充</span>
-          <span style="background-color: #fbe3a6; padding: 2px 6px; border-radius: 6px;">名詞子句</span>
-        </div>
-        <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
-          <span style="background-color: #e5d6f9; padding: 2px 6px; border-radius: 6px;">形容詞子句</span>
-          <span style="background-color: #cce8db; padding: 2px 6px; border-radius: 6px;">副詞子句</span>
-        </div>
-      </div>
-      <div class="meta-tags" id="tags"></div>
     </div>
-    <div class="hint-box" id="hintBox" style="display:none;"></div>
-    <div class="explanation-box" id="explanationBox" style="display:none;"></div>
+    <div class="question-block">
+      <div class="question-text" id="questionText"></div>
+      <div id="options"></div>
+      <div class="meta-row">
+        <div class="buttons">
+          <button onclick="submitAnswer()" id="submitBtn">送出</button>
+          <button onclick="toggleSimplify()">簡化</button>
+          <button onclick="toggleHint()">提示</button>
+        </div>
+        <!-- 簡化提示區塊插入於此 -->
+        <div id="clauseHints">
+          <div style="margin-bottom: 4px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+            <span>刪除線＝補充</span>
+            <span style="background-color: #fbe3a6; padding: 2px 6px; border-radius: 6px;">名詞子句</span>
+          </div>
+          <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+            <span style="background-color: #e5d6f9; padding: 2px 6px; border-radius: 6px;">形容詞子句</span>
+            <span style="background-color: #cce8db; padding: 2px 6px; border-radius: 6px;">副詞子句</span>
+          </div>
+        </div>
+        <div class="meta-tags" id="tags"></div>
+      </div>
+      <div class="hint-box" id="hintBox" style="display:none;"></div>
+      <div class="explanation-box" id="explanationBox" style="display:none;"></div>
+    </div>
+    <div id="promoArea"></div>
+    <footer style="text-align: center; font-size: 13px; color: #888; padding: 20px 0; margin-top: 40px;">
+      © 2025 toeic990.netlify.app. <span style="font-size:10px;">(快點多益)</span> All rights reserved.
+    </footer>
   </div>
-  
-  <div id="promoArea"></div>
   <script>
     let allQuestions = [];
     let currentPool = [];
@@ -1044,9 +1130,6 @@ function syncCategoriesAcrossQuestions() {
 }
 
 </script>
-<footer style="text-align: center; font-size: 13px; color: #888; padding: 20px 0; margin-top: 40px;">
-  © 2025 toeic990.netlify.app. <span style="font-size:10px;">(快點多益)</span> All rights reserved.
-</footer>
 </body>
 <script>
 (function(){
