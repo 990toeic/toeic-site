@@ -2,6 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>
   快點多益⋅P5速成 - 無關單字⋅全靠公式
   </title>
@@ -346,38 +347,96 @@
     /* 響應式設計：針對寬度小於600px的裝置 */
     @media (max-width: 600px) {
       body {
-        padding: 10px;
+        padding: 4px !important;
       }
+      /* 標題區塊直向排列與間距 */
       h1 {
         font-size: 18px;
+        margin-bottom: 8px;
+      }
+      /* loginRow 手機優化 */
+      #loginRow {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        margin-bottom: 8px !important;
+        position: relative !important;
+        /* 移除絕對定位與 top/right/left */
+        /* position: static; top/right/left 不要 */
+      }
+      /* 覆蓋所有 #loginRow 的絕對定位與 top/right/left 設定 */
+      #loginRow {
+        position: relative !important;
+        top: unset !important;
+        right: unset !important;
+        left: unset !important;
+      }
+      #loginRow > * {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-bottom: 0 !important;
+      }
+      #loginRow input,
+      #loginRow button,
+      #loginRow select {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-bottom: 0 !important;
+      }
+      #loginRow span#progressBox {
+        margin-left: 0 !important;
+        min-width: 0 !important;
+        text-align: left !important;
+      }
+      /* 標題上方區塊、標題本身、標題下方下拉/按鈕 統一間距 */
+      .mobile-title-row,
+      h1,
+      #categoryFilter,
+      #wrongModeBtn {
+        margin-bottom: 8px !important;
+      }
+      /* 下拉選單、回顧錯題按鈕寬度 */
+      #categoryFilter,
+      #wrongModeBtn {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-bottom: 8px !important;
+      }
+      #promoArea {
+        display: none;
       }
       .question-block {
-        height: 80vh;
+        width: 99vw !important;
+        max-width: 99vw !important;
+        min-width: unset !important;
+        margin: 0 auto 12px auto !important;
+        padding: 13px 5vw 20px 5vw !important;
+        box-sizing: border-box;
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        padding: 20px;
-        margin: 0 auto;
-        width: 100%;
-        max-width: 100%;
-        box-sizing: border-box;
+        justify-content: flex-start;
         flex-grow: 1;
       }
       .question-text {
-        font-size: 20px;
-        line-height: 1.8;
-        margin-bottom: 30px;
+        margin-bottom: 18px !important;
+        font-size: 19px !important;
+        line-height: 1.5 !important;
         flex-shrink: 0;
       }
       #options {
+        margin-bottom: 10px !important;
         flex-grow: 1;
         display: flex;
         flex-direction: column;
-        justify-content: space-around;
+        justify-content: flex-start;
       }
       .option {
-        padding: 14px 16px;
-        font-size: 17px;
+        font-size: 17px !important;
+        padding: 10px 10px !important;
+        margin-bottom: 7px !important;
       }
       .circle {
         width: 22px;
@@ -385,44 +444,43 @@
       }
       .hint-box,
       .explanation-box {
-        font-size: 15px;
+        font-size: 14px;
         line-height: 1.7;
+        margin-top: 10px;
       }
       .buttons {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 8px;
-        width: 100%;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 7px !important;
+        margin-bottom: 8px !important;
+        width: 100% !important;
       }
       .buttons button {
-        padding: 8px 12px;
-        font-size: 14px;
-        width: 100%;
-      }
-      #loginRow {
-        flex-direction: column;
-        align-items: flex-end;
-        top: 10px;
-        right: 10px;
-        gap: 6px;
-      }
-      #loginRow input,
-      #loginRow button,
-      #loginRow select {
-        width: 100%;
-        max-width: 220px;
-      }
-      #promoArea {
-        display: none;
+        font-size: 16px !important;
+        padding: 11px 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        margin-bottom: 0 !important;
       }
       .meta-row {
-        margin-top: 16px;
-        gap: 8px;
         flex-direction: column;
+        gap: 4px;
         align-items: flex-start;
+        margin-top: 8px;
       }
       .meta-tags {
         justify-content: flex-start;
+      }
+      .meta-tags-row {
+        gap: 3px;
+        margin-top: 2px;
+      }
+      .meta-tag {
+        font-size: 11px;
+        padding: 1px 5px;
+      }
+      #clauseHints {
+        margin-bottom: 6px !important;
       }
     }
     /* #clauseHints 樣式，與 meta-row/buttons/promoArea 區塊相關 */
@@ -459,12 +517,12 @@
   </div>
   <div style="height: 36px;"></div>
   <div style="max-width: 720px; margin: 0 auto 5px auto; text-align: center;">
-    <div style="display: flex; justify-content: center; align-items: center; gap: 12px; margin-bottom: 8px;">
-      <span style="font-size: 12px; color: #bbb;">無關單字</span>
-      <h1 style="margin: 0; font-size: 20px; font-weight: 700; color: #2e3b4e; letter-spacing: 0.7px;">
+    <div class="mobile-title-row" style="display: flex; flex-direction: column; align-items: center; gap: 0; margin-bottom: 8px;">
+      <span style="font-size: 12px; color: #bbb; margin-bottom:8px;">無關單字</span>
+      <h1 style="margin: 0; font-size: 20px; font-weight: 700; color: #2e3b4e; letter-spacing: 0.7px; margin-bottom:8px;">
         快點多益⋅P5速成
       </h1>
-      <span style="font-size: 12px; color: #bbb;">全靠公式</span>
+      <span style="font-size: 12px; color: #bbb; margin-bottom:8px;">全靠公式</span>
     </div>
   </div>
   <div class="question-block">
