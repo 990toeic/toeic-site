@@ -494,6 +494,29 @@
       visibility: hidden;
     }
 </style>
+  <style>
+  .touch-tip-visible::after,
+  .touch-tipbox {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+  .touch-tipbox {
+    position: absolute;
+    left: 0; top: 110%;
+    z-index: 2000;
+    background: #fff;
+    color: #333;
+    border: 1px solid #5b9bd5;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    white-space: pre-line;
+    min-width: 120px;
+    max-width: 240px;
+    display: block;
+  }
+  </style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-B6YJZMSLM6"></script>
 <script>
@@ -1025,4 +1048,81 @@ function syncCategoriesAcrossQuestions() {
   © 2025 toeic990.netlify.app. <span style="font-size:10px;">(快點多益)</span> All rights reserved.
 </footer>
 </body>
+<script>
+(function(){
+  function isTouchDevice() {
+    return ('ontouchstart' in window) || navigator.maxTouchPoints;
+  }
+
+  // ---- 登入按鈕 ----
+  const loginBtn = document.getElementById('loginBtn');
+  let loginTipEl = null;
+  if (loginBtn && isTouchDevice()) {
+    loginBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (loginTipEl) {
+        loginTipEl.remove();
+        loginTipEl = null;
+        return;
+      }
+      loginTipEl = document.createElement('div');
+      loginTipEl.className = 'touch-tipbox';
+      loginTipEl.textContent = "訪客⭢ 免費刷弱底題｜好友⭢ 開啟真題｜學員⭢ 開啟選單";
+      loginBtn.appendChild(loginTipEl);
+
+      // 點空白區自動關閉
+      setTimeout(() => {
+        window.addEventListener('click', hideLoginTip, { once: true });
+      }, 0);
+    });
+    function hideLoginTip() {
+      if (loginTipEl) {
+        loginTipEl.remove();
+        loginTipEl = null;
+      }
+    }
+  }
+
+  // ---- tipbox ----
+  function patchTipbox() {
+    if (!isTouchDevice()) return;
+    document.querySelectorAll('.tipbox').forEach(el => {
+      el.addEventListener('click', function(e){
+        e.stopPropagation();
+        // 若已存在則移除
+        if (el._tipboxEl) {
+          el._tipboxEl.remove();
+          el._tipboxEl = null;
+          return;
+        }
+        // 創建提示內容
+        const tip = el.getAttribute('data-tip') || '';
+        const tipbox = document.createElement('div');
+        tipbox.className = 'touch-tipbox';
+        tipbox.textContent = tip;
+        // 顯示在元素下方
+        el.style.position = 'relative';
+        el.appendChild(tipbox);
+        el._tipboxEl = tipbox;
+        // 點空白區關閉
+        setTimeout(() => {
+          window.addEventListener('click', function hideTipbox() {
+            if (el._tipboxEl) {
+              el._tipboxEl.remove();
+              el._tipboxEl = null;
+            }
+          }, { once: true });
+        }, 0);
+      });
+    });
+  }
+
+  // 初次 patch
+  patchTipbox();
+  // 每次顯示提示時重新 patch（保險起見）
+  document.addEventListener('click', patchTipbox);
+  // 若題目切換也需 patch（視你js渲染方式）
+  window.renderHint && (window.renderHint = ((oriFn) => (...args)=>{const res=oriFn(...args); setTimeout(patchTipbox,50); return res;})(window.renderHint));
+})();
+</script>
 </html>
