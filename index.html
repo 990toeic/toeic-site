@@ -1093,7 +1093,7 @@ function showPromo() {
     document.getElementById('promoArea').innerHTML = '';
     return;
   }
-  promoIndex = (promoIndex + 1) % promoList.length;
+  promoIndex = Math.floor(Math.random() * promoList.length);
   document.getElementById('promoArea').innerHTML = promoList[promoIndex];
 }
 
